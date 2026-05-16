@@ -23,9 +23,9 @@ const USER_PROMPT_TEMPLATE = `Based on the following AI spend audit data, write 
 
 Audit Data:
 - Total tools audited: {{toolCount}}
-- Current monthly spend: ${{currentSpend}}/month
-- Potential optimized spend: ${{optimizedSpend}}/month
-- Total monthly savings: ${{monthlySavings}}/month (${{annualSavings}}/year)
+- Current monthly spend: {{currentSpend}}/month
+- Potential optimized spend: {{optimizedSpend}}/month
+- Total monthly savings: {{monthlySavings}}/month ({{annualSavings}}/year)
 - Savings percentage: {{savingsPercent}}%
 
 Per-tool breakdown:
@@ -77,6 +77,7 @@ export async function POST(request: NextRequest) {
     );
   } catch (err) {
     console.error("Summary API error:", err);
+
     return Response.json(
       { success: false, error: "Internal server error" } satisfies ApiResponse,
       { status: 500 }
@@ -95,9 +96,11 @@ async function generateAISummary(results: AuditResult): Promise<string> {
   const toolBreakdown = results.toolResults
     .map((t) => {
       const rec = t.topRecommendation;
+
       if (!rec || rec.type === "optimal") {
         return `- ${t.toolName} (${t.currentPlan}): $${t.currentMonthlySpend}/mo — Already optimal`;
       }
+
       return `- ${t.toolName} (${t.currentPlan}): $${t.currentMonthlySpend}/mo → ${rec.action} saves $${rec.monthlySavings}/mo. Reason: ${rec.reason.split(".")[0]}.`;
     })
     .join("\n");

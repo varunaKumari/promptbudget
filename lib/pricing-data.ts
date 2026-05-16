@@ -4,7 +4,7 @@
 // Last verified: 2026-05-16
 // ============================================================
 
-import type { Tool } from "./types";
+import type { Tool, Plan, UseCase } from "./types";
 
 export const TOOLS: Tool[] = [
   // ──────────────────────────────────────────────────
