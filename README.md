@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # PromptBudget
 
 **Free AI Spend Audit for Startups** — Find out if you're overspending on Cursor, Copilot, Claude, ChatGPT, and more.
@@ -120,3 +121,7 @@ promptbudget/
 ## License
 
 Built for the Credex Web Development Intern assessment. Not for redistribution.
+=======
+# promptbudget
+AI spend auditor — find waste in your AI tool subscriptions instantly
+>>>>>>> d56e6a002d0711d7eea392f21404796086d74eec
