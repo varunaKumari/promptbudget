@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Moon, Sun } from "lucide-react";
 
 export function ThemeToggle() {
   const [isDark, setIsDark] = useState(false);
@@ -8,7 +10,6 @@ export function ThemeToggle() {
 
   useEffect(() => {
     setMounted(true);
-    // Check saved preference or system preference
     const saved = localStorage.getItem("promptbudget_theme");
     if (saved === "dark") {
       setIsDark(true);
@@ -22,10 +23,9 @@ export function ThemeToggle() {
     }
   }, []);
 
-  const toggleTheme = () => {
+  const toggleTheme = useCallback(() => {
     const newDark = !isDark;
     setIsDark(newDark);
-
     if (newDark) {
       document.documentElement.classList.add("dark");
       localStorage.setItem("promptbudget_theme", "dark");
@@ -33,16 +33,27 @@ export function ThemeToggle() {
       document.documentElement.classList.remove("dark");
       localStorage.setItem("promptbudget_theme", "light");
     }
-  };
+  }, [isDark]);
 
-  // Avoid hydration mismatch
+  // Keyboard shortcut: Ctrl/Cmd + Shift + D
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === "d") {
+        e.preventDefault();
+        toggleTheme();
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [toggleTheme]);
+
   if (!mounted) {
     return (
       <button
-        className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-lg transition-all hover:bg-muted"
+        className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition-colors hover:bg-accent"
         aria-label="Toggle theme"
       >
-        🌙
+        <Moon className="h-4 w-4" />
       </button>
     );
   }
@@ -50,10 +61,33 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-lg transition-all hover:bg-muted hover:scale-110"
+      className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      title={`Toggle theme (${navigator.platform.includes("Mac") ? "⌘" : "Ctrl"}+Shift+D)`}
     >
-      {isDark ? "☀️" : "🌙"}
+      <AnimatePresence mode="wait" initial={false}>
+        {isDark ? (
+          <motion.span
+            key="sun"
+            initial={{ opacity: 0, rotate: -90, scale: 0 }}
+            animate={{ opacity: 1, rotate: 0, scale: 1 }}
+            exit={{ opacity: 0, rotate: 90, scale: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Sun className="h-4 w-4" />
+          </motion.span>
+        ) : (
+          <motion.span
+            key="moon"
+            initial={{ opacity: 0, rotate: 90, scale: 0 }}
+            animate={{ opacity: 1, rotate: 0, scale: 1 }}
+            exit={{ opacity: 0, rotate: -90, scale: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Moon className="h-4 w-4" />
+          </motion.span>
+        )}
+      </AnimatePresence>
     </button>
   );
 }

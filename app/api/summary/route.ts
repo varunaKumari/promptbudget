@@ -4,7 +4,7 @@
 // ============================================================
 
 import { NextRequest } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 import { generateTemplatedSummary } from "@/lib/audit-engine";
 import type { AuditResult, ApiResponse } from "@/lib/types";
 
@@ -61,13 +61,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Save summary to Supabase (non-blocking)
-    if (auditId) {
-      supabase
+    if (auditId && isSupabaseConfigured) {
+      supabaseAdmin
         .from("audits")
         .update({ ai_summary: summary })
         .eq("id", auditId)
         .then(({ error }) => {
-          if (error) console.error("Failed to save AI summary:", error);
+          if (error) console.error("[summary] Failed to save AI summary:", error.message);
         });
     }
 

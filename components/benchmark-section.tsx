@@ -1,6 +1,8 @@
 "use client";
 
 import { calculateBenchmark } from "@/lib/benchmarks";
+import { FadeIn } from "@/components/ui/motion";
+import { BarChart3, ArrowUp, ArrowDown } from "lucide-react";
 
 interface BenchmarkSectionProps {
   totalMonthlySpend: number;
@@ -15,7 +17,6 @@ export function BenchmarkSection({
   const { spendPerDev, benchmark, percentile, vsMedian, vsMedianPercent } =
     comparison;
 
-  // Calculate bar positions for the visualization
   const maxVal = benchmark.p75SpendPerDev * 1.5;
   const p25Pos = (benchmark.p25SpendPerDev / maxVal) * 100;
   const medPos = (benchmark.medianSpendPerDev / maxVal) * 100;
@@ -25,107 +26,106 @@ export function BenchmarkSection({
   const isOverMedian = vsMedian > 0;
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-8">
-      <div className="mb-2 flex items-center gap-2">
-        <span className="text-lg">📏</span>
-        <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-          Benchmark Comparison
-        </h2>
-      </div>
-      <p className="mb-6 text-xs text-muted-foreground">
-        How your AI spend compares to {benchmark.companyStage.toLowerCase()}{" "}
-        teams ({benchmark.teamSizeRange[0]}–{benchmark.teamSizeRange[1]} devs)
-      </p>
-
-      {/* Main stat */}
-      <div className="mb-8 text-center">
-        <div className="mb-1 text-5xl font-black tracking-tight">
-          ${spendPerDev}
-          <span className="text-lg font-normal text-muted-foreground">
-            /dev/mo
-          </span>
+    <FadeIn>
+      <div className="rounded-xl border border-border bg-card p-6">
+        <div className="mb-1 flex items-center gap-2">
+          <BarChart3 className="h-4 w-4 text-muted-foreground" />
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            Benchmark Comparison
+          </h2>
         </div>
-        <div className="flex items-center justify-center gap-2">
-          <span
-            className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
-              isOverMedian
-                ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-            }`}
-          >
-            {isOverMedian ? "↑" : "↓"} {Math.abs(vsMedianPercent)}% vs
-            median
-          </span>
-          <span className="text-sm text-muted-foreground">({percentile})</span>
-        </div>
-      </div>
+        <p className="mb-6 text-[11px] text-muted-foreground">
+          How your AI spend compares to {benchmark.companyStage.toLowerCase()}{" "}
+          teams ({benchmark.teamSizeRange[0]}–{benchmark.teamSizeRange[1]} devs)
+        </p>
 
-      {/* Visual benchmark bar */}
-      <div className="relative mb-8">
-        <div className="relative h-10 w-full overflow-hidden rounded-full bg-muted">
-          {/* Green zone: below median */}
-          <div
-            className="absolute inset-y-0 left-0 rounded-l-full bg-emerald-500/20"
-            style={{ width: `${medPos}%` }}
-          />
-          {/* Amber zone: above median */}
-          <div
-            className="absolute inset-y-0 bg-amber-500/20"
-            style={{ left: `${medPos}%`, width: `${p75Pos - medPos}%` }}
-          />
-          {/* Red zone: top 25% */}
-          <div
-            className="absolute inset-y-0 right-0 rounded-r-full bg-red-500/10"
-            style={{ left: `${p75Pos}%` }}
-          />
-
-          {/* User position marker */}
-          <div
-            className="absolute top-1/2 z-10 -translate-y-1/2 transition-all duration-700"
-            style={{ left: `${userPos}%` }}
-          >
-            <div className="flex flex-col items-center">
-              <div className="h-10 w-1 rounded-full bg-foreground shadow-lg" />
-            </div>
+        {/* Main stat */}
+        <div className="mb-6 text-center">
+          <div className="mb-1 text-4xl font-bold font-tabular tracking-tight">
+            ${spendPerDev}
+            <span className="text-base font-normal text-muted-foreground">
+              /dev/mo
+            </span>
+          </div>
+          <div className="flex items-center justify-center gap-2">
+            <span
+              className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium ${
+                isOverMedian
+                  ? "bg-warning/10 text-warning"
+                  : "bg-success/10 text-success"
+              }`}
+            >
+              {isOverMedian ? (
+                <ArrowUp className="h-3 w-3" />
+              ) : (
+                <ArrowDown className="h-3 w-3" />
+              )}
+              {Math.abs(vsMedianPercent)}% vs median
+            </span>
+            <span className="text-xs text-muted-foreground">({percentile})</span>
           </div>
         </div>
 
-        {/* Labels */}
-        <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-          <span>${benchmark.p25SpendPerDev}</span>
-          <span className="font-medium">
-            Median: ${benchmark.medianSpendPerDev}
-          </span>
-          <span>${benchmark.p75SpendPerDev}</span>
-        </div>
-        <div className="mt-1 flex justify-between text-xs text-muted-foreground">
-          <span>p25</span>
-          <span>p50</span>
-          <span>p75</span>
-        </div>
-      </div>
+        {/* Visual benchmark bar */}
+        <div className="relative mb-6">
+          <div className="relative h-8 w-full overflow-hidden rounded-lg bg-muted">
+            {/* Zones */}
+            <div
+              className="absolute inset-y-0 left-0 rounded-l-lg bg-success/15"
+              style={{ width: `${medPos}%` }}
+            />
+            <div
+              className="absolute inset-y-0 bg-warning/15"
+              style={{ left: `${medPos}%`, width: `${p75Pos - medPos}%` }}
+            />
+            <div
+              className="absolute inset-y-0 right-0 rounded-r-lg bg-danger/10"
+              style={{ left: `${p75Pos}%` }}
+            />
 
-      {/* Assessment text */}
-      <p className="text-sm leading-relaxed text-muted-foreground">
-        {comparison.assessment}
-      </p>
-
-      {/* Common tools at this stage */}
-      <div className="mt-6 border-t border-border pt-4">
-        <p className="mb-2 text-xs font-medium text-muted-foreground">
-          Most used tools at {benchmark.companyStage.toLowerCase()} stage:
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {benchmark.topTools.map((tool) => (
-            <span
-              key={tool}
-              className="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground"
+            {/* User position marker */}
+            <div
+              className="absolute top-1/2 z-10 -translate-y-1/2 transition-all duration-700"
+              style={{ left: `${userPos}%` }}
             >
-              {tool}
+              <div className="flex flex-col items-center">
+                <div className="h-8 w-0.5 rounded-full bg-foreground shadow-sm" />
+              </div>
+            </div>
+          </div>
+
+          {/* Labels */}
+          <div className="mt-1.5 flex justify-between text-[10px] text-muted-foreground">
+            <span>${benchmark.p25SpendPerDev} (p25)</span>
+            <span className="font-medium">
+              Median: ${benchmark.medianSpendPerDev}
             </span>
-          ))}
+            <span>${benchmark.p75SpendPerDev} (p75)</span>
+          </div>
+        </div>
+
+        {/* Assessment text */}
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          {comparison.assessment}
+        </p>
+
+        {/* Common tools */}
+        <div className="mt-5 border-t border-border pt-4">
+          <p className="mb-2 text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+            Common tools at {benchmark.companyStage.toLowerCase()} stage
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {benchmark.topTools.map((tool) => (
+              <span
+                key={tool}
+                className="rounded-md bg-muted px-2 py-0.5 text-[11px] text-muted-foreground"
+              >
+                {tool}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </FadeIn>
   );
 }

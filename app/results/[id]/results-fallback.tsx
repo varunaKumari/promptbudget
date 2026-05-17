@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { ArrowRight, Loader2 } from "lucide-react";
 import type { AuditResult } from "@/lib/types";
 import { ResultsClient } from "./results-client";
 
@@ -35,35 +36,36 @@ export function ResultsFallback({ auditId }: ResultsFallbackProps) {
   if (!checked) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="flex items-center gap-3">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-foreground/20 border-t-foreground" />
-          <p className="text-muted-foreground">Loading your audit results...</p>
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">Loading your audit results...</p>
         </div>
       </div>
     );
   }
 
-  // Found cached results — render them
+  // Found cached results
   if (results) {
     return <ResultsClient results={results} auditId={auditId} />;
   }
 
-  // No data anywhere — show 404
+  // No data — 404 state
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
-      <div className="mb-6 text-8xl font-black text-muted-foreground/20">
+      <div className="mb-4 text-7xl font-black text-muted-foreground/15 font-tabular">
         404
       </div>
-      <h1 className="mb-3 text-2xl font-bold">Audit Not Found</h1>
-      <p className="mb-8 max-w-md text-muted-foreground">
+      <h1 className="mb-2 text-xl font-bold">Audit not found</h1>
+      <p className="mb-8 max-w-sm text-sm text-muted-foreground">
         This audit report doesn&apos;t exist or has expired. Run a new
         audit to get fresh savings recommendations.
       </p>
       <Link
         href="/audit"
-        className="inline-flex h-12 items-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:opacity-90 hover:scale-105"
+        className="group inline-flex h-10 items-center rounded-lg bg-foreground px-6 text-sm font-medium text-background transition-all hover:opacity-90"
       >
-        Start New Audit →
+        Start new audit
+        <ArrowRight className="ml-1.5 h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
       </Link>
     </div>
   );

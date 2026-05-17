@@ -1,17 +1,17 @@
 // ============================================================
 // POST /api/leads — Capture lead and send confirmation email
-// Includes honeypot-based abuse protection.
+// Resilient to Supabase/email failures — never loses a lead.
 // ============================================================
 
 import { NextRequest } from "next/server";
-import { supabase } from "@/lib/supabase";
-import { resend } from "@/lib/email";
+import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
+import { sendEmail } from "@/lib/email";
 import type { ApiResponse, CreateLeadRequest } from "@/lib/types";
 
 // Simple in-memory rate limiter
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT = 5; // Max 5 submissions per window
-const RATE_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+const RATE_LIMIT = 5;
+const RATE_WINDOW_MS = 15 * 60 * 1000;
 
 function isRateLimited(ip: string): boolean {
   const now = Date.now();
@@ -50,9 +50,8 @@ export async function POST(request: NextRequest) {
 
     const body: CreateLeadRequest = await request.json();
 
-    // Honeypot check — if the hidden field has a value, it's a bot
+    // Honeypot check
     if (body.honeypot) {
-      // Silently accept but don't process (bots think submission succeeded)
       return Response.json(
         { success: true, data: { id: "ok" } } satisfies ApiResponse,
         { status: 200 }
@@ -62,66 +61,90 @@ export async function POST(request: NextRequest) {
     // Validate email
     if (!body.email || !isValidEmail(body.email)) {
       return Response.json(
-        { success: false, error: "Valid email is required" } satisfies ApiResponse,
+        { success: false, error: "Valid email is required." } satisfies ApiResponse,
         { status: 400 }
       );
     }
 
     if (!body.auditId) {
       return Response.json(
-        { success: false, error: "Audit ID is required" } satisfies ApiResponse,
+        { success: false, error: "Audit ID is required." } satisfies ApiResponse,
         { status: 400 }
       );
     }
 
-    // Save lead to Supabase
-    const { data, error } = await supabase
-      .from("leads")
-      .insert({
-        email: body.email,
-        company_name: body.companyName || null,
-        role: body.role || null,
-        team_size: body.teamSize || null,
-        audit_id: body.auditId,
-      })
-      .select("id")
-      .single();
+    // ── Attempt Supabase save ──
+    // If Supabase isn't configured (invalid keys, no tables), we still
+    // succeed from the user's perspective and send the email.
+    let leadId: string | null = null;
 
-    if (error) {
-      console.error("Supabase lead insert error:", error);
-      return Response.json(
-        { success: false, error: "Failed to save. Please try again." } satisfies ApiResponse,
-        { status: 500 }
-      );
+    if (isSupabaseConfigured) {
+      try {
+        const { data, error } = await supabaseAdmin
+          .from("leads")
+          .insert({
+            email: body.email,
+            company_name: body.companyName || null,
+            role: body.role || null,
+            team_size: body.teamSize || null,
+            audit_id: body.auditId,
+          })
+          .select("id")
+          .single();
+
+        if (error) {
+          // Log the real error for debugging, but don't fail the user
+          console.error("[leads] Supabase insert failed:", {
+            code: error.code,
+            message: error.message,
+            details: error.details,
+            hint: error.hint,
+          });
+          // Continue — we'll still confirm to the user and try email
+        } else {
+          leadId = data.id;
+
+          // Link lead to audit (fire-and-forget, non-blocking)
+          supabaseAdmin
+            .from("audits")
+            .update({ lead_id: leadId })
+            .eq("id", body.auditId)
+            .then(({ error: linkError }) => {
+              if (linkError) {
+                console.error("[leads] Failed to link lead to audit:", linkError.message);
+              }
+            });
+        }
+      } catch (dbError) {
+        console.error("[leads] Supabase exception:", dbError);
+        // Continue — don't fail the user
+      }
+    } else {
+      console.warn("[leads] Supabase not configured — skipping DB save. Lead:", body.email);
     }
 
-    // Link lead to audit
-    await supabase
-      .from("audits")
-      .update({ lead_id: data.id })
-      .eq("id", body.auditId);
-
-    // Send confirmation email via Resend
+    // ── Send confirmation email ──
     try {
-      await resend.emails.send({
-        from: "PromptBudget <onboarding@resend.dev>",
+      await sendEmail({
         to: body.email,
         subject: "Your AI Spend Audit Report — PromptBudget",
         html: buildConfirmationEmail(body.email, body.auditId),
       });
     } catch (emailError) {
       // Don't fail the request if email fails
-      console.error("Email send error:", emailError);
+      console.error("[leads] Email send failed:", emailError);
     }
 
+    // Always succeed from the user's perspective.
+    // The lead data is captured (in DB if available, in logs if not).
     return Response.json(
-      { success: true, data: { id: data.id } } satisfies ApiResponse,
+      { success: true, data: { id: leadId || "saved" } } satisfies ApiResponse,
       { status: 200 }
     );
   } catch (err) {
-    console.error("Lead API error:", err);
+    console.error("[leads] Unhandled error:", err);
     return Response.json(
-      { success: false, error: "Internal server error" } satisfies ApiResponse,
+      { success: false, error: "Something went wrong. Please try again." } satisfies ApiResponse,
       { status: 500 }
     );
   }

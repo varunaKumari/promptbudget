@@ -2,10 +2,22 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Plus,
+  X,
+  ChevronRight,
+  Loader2,
+  Sparkles,
+  Users,
+  Briefcase,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Navbar } from "@/components/navbar";
+import { SiteFooter } from "@/components/site-footer";
+import { FadeIn, SlideUp, CountUp } from "@/components/ui/motion";
 import {
   Select,
   SelectContent,
@@ -30,12 +42,43 @@ const DEFAULT_FORM_STATE: FormState = {
   primaryUseCase: "coding",
 };
 
-const USE_CASE_OPTIONS: { value: UseCase; label: string }[] = [
-  { value: "coding", label: "💻 Coding & Development" },
-  { value: "writing", label: "✍️ Writing & Content" },
-  { value: "data", label: "📊 Data & Analytics" },
-  { value: "research", label: "🔬 Research & Analysis" },
-  { value: "mixed", label: "🔄 Mixed / All of the above" },
+const USE_CASE_OPTIONS: { value: UseCase; label: string; icon: React.ReactNode }[] = [
+  { value: "coding", label: "Coding & Development", icon: <span className="text-xs">{"</>"}</span> },
+  { value: "writing", label: "Writing & Content", icon: <span className="text-xs">✎</span> },
+  { value: "data", label: "Data & Analytics", icon: <span className="text-xs">▥</span> },
+  { value: "research", label: "Research & Analysis", icon: <span className="text-xs">◎</span> },
+  { value: "mixed", label: "Mixed / All of the above", icon: <span className="text-xs">⊞</span> },
+];
+
+// Quick-start presets for common team configurations
+const PRESETS = [
+  {
+    label: "Solo Developer",
+    teamSize: 1,
+    tools: [
+      { toolId: "cursor", planId: "cursor-pro", seats: 1, monthlySpend: 20 },
+      { toolId: "claude", planId: "claude-pro", seats: 1, monthlySpend: 20 },
+    ],
+  },
+  {
+    label: "Seed Team (5)",
+    teamSize: 5,
+    tools: [
+      { toolId: "cursor", planId: "cursor-teams", seats: 5, monthlySpend: 200 },
+      { toolId: "claude", planId: "claude-team-standard", seats: 5, monthlySpend: 125 },
+      { toolId: "chatgpt", planId: "chatgpt-plus", seats: 5, monthlySpend: 100 },
+    ],
+  },
+  {
+    label: "Series A (15)",
+    teamSize: 15,
+    tools: [
+      { toolId: "cursor", planId: "cursor-teams", seats: 15, monthlySpend: 600 },
+      { toolId: "github-copilot", planId: "copilot-business", seats: 15, monthlySpend: 285 },
+      { toolId: "claude", planId: "claude-team-standard", seats: 15, monthlySpend: 375 },
+      { toolId: "chatgpt", planId: "chatgpt-business", seats: 15, monthlySpend: 375 },
+    ],
+  },
 ];
 
 export default function AuditPage() {
@@ -81,8 +124,6 @@ export default function AuditPage() {
   const addTool = (toolId: string) => {
     const tool = TOOLS.find((t) => t.id === toolId);
     if (!tool) return;
-
-    // Don't add duplicates
     if (form.tools.some((t) => t.toolId === toolId)) return;
 
     const defaultPlan = tool.plans.find((p) => p.pricePerUserPerMonth > 0) || tool.plans[0];
@@ -98,19 +139,15 @@ export default function AuditPage() {
     updateForm({ tools: [...form.tools, newEntry] });
   };
 
-  // Remove a tool
   const removeTool = (index: number) => {
     const next = form.tools.filter((_, i) => i !== index);
     updateForm({ tools: next });
   };
 
-  // Update a tool entry
   const updateTool = (index: number, updates: Partial<ToolEntry>) => {
     const next = form.tools.map((t, i) => {
       if (i !== index) return t;
       const updated = { ...t, ...updates };
-
-      // Auto-calculate monthly spend when plan or seats change
       if (updates.planId || updates.seats !== undefined) {
         const tool = TOOLS.find((tl) => tl.id === updated.toolId);
         const plan = tool?.plans.find((p) => p.id === updated.planId);
@@ -120,19 +157,23 @@ export default function AuditPage() {
             : plan.pricePerUserPerMonth;
         }
       }
-
       return updated;
     });
     updateForm({ tools: next });
   };
 
-  // Submit the audit
+  const applyPreset = (preset: typeof PRESETS[number]) => {
+    updateForm({
+      tools: preset.tools,
+      teamSize: preset.teamSize,
+    });
+  };
+
   const handleSubmit = async () => {
     if (form.tools.length === 0) {
       setError("Add at least one AI tool to audit.");
       return;
     }
-
     setError("");
     setIsSubmitting(true);
 
@@ -148,16 +189,11 @@ export default function AuditPage() {
           },
         }),
       });
-
       const data = await res.json();
-
       if (!data.success) {
         setError(data.error || "Something went wrong. Please try again.");
         return;
       }
-
-      // Cache results in sessionStorage so the results page can render
-      // immediately without waiting for Supabase (fallback for missing tables)
       try {
         sessionStorage.setItem(
           `audit_${data.data.id}`,
@@ -166,8 +202,6 @@ export default function AuditPage() {
       } catch {
         // Ignore storage errors
       }
-
-      // Navigate to results
       router.push(`/results/${data.data.id}`);
     } catch {
       setError("Network error. Please check your connection and try again.");
@@ -186,103 +220,145 @@ export default function AuditPage() {
   );
 
   const totalMonthlySpend = form.tools.reduce((sum, t) => sum + t.monthlySpend, 0);
+  const totalAnnualSpend = totalMonthlySpend * 12;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <Navbar showAuditCta={false} maxWidth="max-w-4xl" />
+    <div className="min-h-screen flex flex-col bg-background">
+      <Navbar showAuditCta={false} maxWidth="max-w-3xl" />
 
-      <main className="mx-auto max-w-4xl px-6 py-12">
-        <div className="mb-10">
-          <h1 className="mb-3 text-3xl font-bold tracking-tight md:text-4xl">
-            Audit Your AI Spend
-          </h1>
-          <p className="text-lg text-muted-foreground">
-            Add every AI tool you pay for. Be honest — the audit is only as
-            good as the data you give it.
-          </p>
-        </div>
-
-        {/* Team Info */}
-        <section className="mb-8 rounded-2xl border border-border bg-card p-6">
-          <h2 className="mb-4 text-lg font-semibold">Team Information</h2>
-          <div className="grid gap-6 sm:grid-cols-2">
+      <main className="flex-1 mx-auto w-full max-w-3xl px-6 py-10">
+        {/* Page Header */}
+        <SlideUp className="mb-8">
+          <div className="flex items-start justify-between">
             <div>
-              <Label htmlFor="team-size">Team Size</Label>
-              <Input
-                id="team-size"
-                type="number"
-                min={1}
-                max={10000}
-                value={form.teamSize}
-                onChange={(e) =>
-                  updateForm({ teamSize: Math.max(1, parseInt(e.target.value) || 1) })
-                }
-                className="mt-1.5"
-              />
-              <p className="mt-1 text-xs text-muted-foreground">
-                Total people using AI tools on your team
+              <h1 className="mb-2 text-2xl font-bold tracking-tight md:text-3xl">
+                Audit your AI spend
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Add your tools below, or start with a preset. The audit is only as
+                good as the data you give it.
               </p>
             </div>
-            <div>
-              <Label htmlFor="use-case">Primary Use Case</Label>
-              <Select
-                value={form.primaryUseCase}
-                onValueChange={(v) => updateForm({ primaryUseCase: v as UseCase })}
-              >
-                <SelectTrigger id="use-case" className="mt-1.5">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {USE_CASE_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            {/* Step indicator */}
+            <div className="hidden items-center gap-1.5 text-xs text-muted-foreground md:flex">
+              <span className="rounded bg-primary/10 px-2 py-1 font-medium text-primary">
+                1. Input
+              </span>
+              <ChevronRight className="h-3 w-3" />
+              <span className="rounded px-2 py-1">2. Results</span>
             </div>
           </div>
-        </section>
+        </SlideUp>
+
+        {/* Quick-Start Presets */}
+        {form.tools.length === 0 && (
+          <FadeIn delay={0.1} className="mb-8">
+            <p className="mb-3 text-xs font-medium uppercase tracking-widest text-muted-foreground">
+              Quick start — pick a common stack
+            </p>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {PRESETS.map((preset) => (
+                <button
+                  key={preset.label}
+                  type="button"
+                  onClick={() => applyPreset(preset)}
+                  className="group rounded-xl border border-border bg-card p-4 text-left transition-all hover:border-primary/30 hover:shadow-sm"
+                >
+                  <div className="mb-1 text-sm font-semibold">{preset.label}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {preset.tools.length} tools · {preset.teamSize} user{preset.teamSize > 1 ? "s" : ""}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </FadeIn>
+        )}
+
+        {/* Team Info */}
+        <FadeIn delay={0.15} className="mb-8">
+          <div className="rounded-xl border border-border bg-card p-5">
+            <div className="mb-4 flex items-center gap-2 text-sm font-semibold">
+              <Users className="h-4 w-4 text-muted-foreground" />
+              Team
+            </div>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="team-size" className="text-xs">Team Size</Label>
+                <Input
+                  id="team-size"
+                  type="number"
+                  min={1}
+                  max={10000}
+                  value={form.teamSize}
+                  onChange={(e) =>
+                    updateForm({ teamSize: Math.max(1, parseInt(e.target.value) || 1) })
+                  }
+                  className="mt-1.5"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  People using AI tools on your team
+                </p>
+              </div>
+              <div>
+                <Label htmlFor="use-case" className="text-xs">Primary Use Case</Label>
+                <Select
+                  value={form.primaryUseCase}
+                  onValueChange={(v) => updateForm({ primaryUseCase: v as UseCase })}
+                >
+                  <SelectTrigger id="use-case" className="mt-1.5">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {USE_CASE_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        </FadeIn>
 
         {/* Added Tools */}
-        {form.tools.length > 0 && (
-          <section className="mb-8 space-y-4">
-            <h2 className="text-lg font-semibold">
-              Your AI Tools ({form.tools.length})
-            </h2>
-            {form.tools.map((entry, index) => {
-              const tool = TOOLS.find((t) => t.id === entry.toolId);
-              if (!tool) return null;
+        <AnimatePresence mode="popLayout">
+          {form.tools.map((entry, index) => {
+            const tool = TOOLS.find((t) => t.id === entry.toolId);
+            if (!tool) return null;
 
-              return (
-                <div
-                  key={`${entry.toolId}-${index}`}
-                  className="rounded-2xl border border-border bg-card p-6 transition-all hover:border-foreground/10"
-                >
+            return (
+              <motion.div
+                key={`${entry.toolId}-${index}`}
+                initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                animate={{ opacity: 1, height: "auto", marginBottom: 12 }}
+                exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                transition={{ duration: 0.25, ease: [0.21, 0.47, 0.32, 0.98] }}
+              >
+                <div className="rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/15">
                   <div className="mb-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">{tool.icon}</span>
-                      <h3 className="text-lg font-semibold">{tool.name}</h3>
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-base">
+                        {tool.icon}
+                      </div>
+                      <span className="text-sm font-semibold">{tool.name}</span>
                     </div>
                     <button
                       type="button"
                       onClick={() => removeTool(index)}
-                      className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                      className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-danger/10 hover:text-danger"
                       aria-label={`Remove ${tool.name}`}
                     >
-                      ✕
+                      <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
 
                   <div className="grid gap-4 sm:grid-cols-3">
                     <div>
-                      <Label htmlFor={`plan-${index}`}>Plan</Label>
+                      <Label htmlFor={`plan-${index}`} className="text-xs">Plan</Label>
                       <Select
                         value={entry.planId}
-                        onValueChange={(v) =>
-                          updateTool(index, { planId: v })
-                        }
+                        onValueChange={(v) => updateTool(index, { planId: v })}
                       >
                         <SelectTrigger id={`plan-${index}`} className="mt-1.5">
                           <SelectValue />
@@ -301,7 +377,7 @@ export default function AuditPage() {
                     </div>
 
                     <div>
-                      <Label htmlFor={`seats-${index}`}>Seats / Users</Label>
+                      <Label htmlFor={`seats-${index}`} className="text-xs">Seats</Label>
                       <Input
                         id={`seats-${index}`}
                         type="number"
@@ -318,7 +394,7 @@ export default function AuditPage() {
                     </div>
 
                     <div>
-                      <Label htmlFor={`spend-${index}`}>Monthly Spend ($)</Label>
+                      <Label htmlFor={`spend-${index}`} className="text-xs">Monthly Spend ($)</Label>
                       <Input
                         id={`spend-${index}`}
                         type="number"
@@ -327,33 +403,33 @@ export default function AuditPage() {
                         value={entry.monthlySpend}
                         onChange={(e) =>
                           updateTool(index, {
-                            monthlySpend: Math.max(
-                              0,
-                              parseFloat(e.target.value) || 0
-                            ),
+                            monthlySpend: Math.max(0, parseFloat(e.target.value) || 0),
                           })
                         }
-                        className="mt-1.5"
+                        className="mt-1.5 font-tabular"
                       />
                       <p className="mt-1 text-xs text-muted-foreground">
-                        What you actually pay (override if different)
+                        Override if different from calculated
                       </p>
                     </div>
                   </div>
                 </div>
-              );
-            })}
-          </section>
-        )}
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
 
         {/* Add Tool Selector */}
-        <section className="mb-8">
-          <h2 className="mb-4 text-lg font-semibold">Add a Tool</h2>
+        <FadeIn delay={0.2} className="mb-8">
+          <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
+            <Briefcase className="h-4 w-4 text-muted-foreground" />
+            {form.tools.length > 0 ? "Add more tools" : "Add your tools"}
+          </div>
 
           {/* Subscription Tools */}
           {availableSubTools.length > 0 && (
             <div className="mb-4">
-              <p className="mb-2 text-sm text-muted-foreground">
+              <p className="mb-2 text-xs text-muted-foreground">
                 Coding & Chat Tools
               </p>
               <div className="flex flex-wrap gap-2">
@@ -362,11 +438,11 @@ export default function AuditPage() {
                     key={tool.id}
                     type="button"
                     onClick={() => addTool(tool.id)}
-                    className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium transition-all hover:border-foreground/20 hover:bg-muted hover:scale-105"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm transition-all hover:border-primary/30 hover:shadow-sm"
                   >
-                    <span>{tool.icon}</span>
-                    {tool.name}
-                    <span className="text-muted-foreground">+</span>
+                    <span className="text-xs">{tool.icon}</span>
+                    <span className="font-medium">{tool.name}</span>
+                    <Plus className="h-3 w-3 text-muted-foreground" />
                   </button>
                 ))}
               </div>
@@ -376,8 +452,8 @@ export default function AuditPage() {
           {/* API Tools */}
           {availableApiTools.length > 0 && (
             <div>
-              <p className="mb-2 text-sm text-muted-foreground">
-                API Platforms (direct usage)
+              <p className="mb-2 text-xs text-muted-foreground">
+                API Platforms
               </p>
               <div className="flex flex-wrap gap-2">
                 {availableApiTools.map((tool) => (
@@ -385,11 +461,11 @@ export default function AuditPage() {
                     key={tool.id}
                     type="button"
                     onClick={() => addTool(tool.id)}
-                    className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium transition-all hover:border-foreground/20 hover:bg-muted hover:scale-105"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm transition-all hover:border-primary/30 hover:shadow-sm"
                   >
-                    <span>{tool.icon}</span>
-                    {tool.name}
-                    <span className="text-muted-foreground">+</span>
+                    <span className="text-xs">{tool.icon}</span>
+                    <span className="font-medium">{tool.name}</span>
+                    <Plus className="h-3 w-3 text-muted-foreground" />
                   </button>
                 ))}
               </div>
@@ -398,24 +474,52 @@ export default function AuditPage() {
 
           {availableSubTools.length === 0 && availableApiTools.length === 0 && (
             <p className="text-sm text-muted-foreground">
-              All supported tools have been added.
+              All supported tools added.
             </p>
           )}
-        </section>
+        </FadeIn>
 
-        {/* Summary + Submit */}
+        {/* Empty State */}
+        {form.tools.length === 0 && (
+          <FadeIn delay={0.3}>
+            <div className="rounded-xl border border-dashed border-border p-10 text-center">
+              <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
+                <Sparkles className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <p className="mb-1 text-sm font-medium text-muted-foreground">
+                Click a tool above or pick a preset
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Add every AI tool your team pays for — subscriptions and API usage
+              </p>
+            </div>
+          </FadeIn>
+        )}
+      </main>
+
+      {/* Sticky Submit Bar */}
+      <AnimatePresence>
         {form.tools.length > 0 && (
-          <section className="sticky bottom-0 z-40 -mx-6 border-t border-border bg-background/95 px-6 py-6 backdrop-blur-xl">
-            <div className="flex items-center justify-between">
+          <motion.div
+            initial={{ y: 80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 80, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="sticky bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur-xl"
+          >
+            <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
               <div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   {form.tools.length} tool{form.tools.length > 1 ? "s" : ""} ·{" "}
-                  {form.teamSize} team member{form.teamSize > 1 ? "s" : ""}
+                  {form.teamSize} member{form.teamSize > 1 ? "s" : ""}
                 </p>
-                <p className="text-2xl font-bold">
-                  ${totalMonthlySpend.toLocaleString()}
-                  <span className="text-base font-normal text-muted-foreground">
-                    /month total
+                <p className="text-xl font-bold font-tabular">
+                  $<CountUp value={totalMonthlySpend} />
+                  <span className="text-sm font-normal text-muted-foreground">
+                    /mo
+                  </span>
+                  <span className="ml-3 text-sm font-normal text-muted-foreground">
+                    ${totalAnnualSpend.toLocaleString()}/yr
                   </span>
                 </p>
               </div>
@@ -424,33 +528,34 @@ export default function AuditPage() {
                 size="lg"
                 disabled={isSubmitting}
                 onClick={handleSubmit}
-                className="min-w-[200px] rounded-full text-lg"
+                className="min-w-[180px] rounded-xl"
               >
-                {isSubmitting ? "Analyzing..." : "Run My Audit →"}
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Analyzing...
+                  </>
+                ) : (
+                  <>
+                    Run audit
+                    <ChevronRight className="ml-1 h-4 w-4" />
+                  </>
+                )}
               </Button>
             </div>
 
             {error && (
-              <p className="mt-3 text-sm text-red-500" role="alert">
-                {error}
-              </p>
+              <div className="mx-auto max-w-3xl px-6 pb-3">
+                <p className="text-sm text-danger" role="alert">
+                  {error}
+                </p>
+              </div>
             )}
-          </section>
+          </motion.div>
         )}
+      </AnimatePresence>
 
-        {/* Empty State */}
-        {form.tools.length === 0 && (
-          <div className="rounded-2xl border-2 border-dashed border-border p-12 text-center">
-            <p className="mb-2 text-4xl">👆</p>
-            <p className="text-lg font-medium text-muted-foreground">
-              Click a tool above to start your audit
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Add every AI tool your team pays for — subscriptions and API usage
-            </p>
-          </div>
-        )}
-      </main>
+      {form.tools.length === 0 && <SiteFooter />}
     </div>
   );
 }

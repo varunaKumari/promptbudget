@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Mail, CheckCircle, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -56,36 +58,43 @@ export function LeadForm({ auditId, savingsAmount, onSuccess }: LeadFormProps) {
 
   if (isSubmitted) {
     return (
-      <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-8 text-center">
-        <div className="mb-3 text-4xl">✅</div>
-        <h3 className="mb-2 text-xl font-semibold text-foreground">
-          Report Saved!
-        </h3>
-        <p className="text-muted-foreground">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="rounded-xl border border-success/20 bg-success/[0.04] p-8 text-center"
+      >
+        <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-success/10">
+          <CheckCircle className="h-6 w-6 text-success" />
+        </div>
+        <h3 className="mb-2 text-lg font-semibold">Report saved</h3>
+        <p className="text-sm text-muted-foreground">
           Check your email for a link to this report. We&apos;ll notify you when
           new optimizations apply to your stack.
         </p>
-      </div>
+      </motion.div>
     );
   }
 
   const isHighSavings = savingsAmount >= 500;
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-8">
-      <h3 className="mb-2 text-xl font-semibold text-foreground">
+    <div className="rounded-xl border border-border bg-card p-6">
+      <div className="mb-1 flex items-center gap-2">
+        <Mail className="h-4 w-4 text-muted-foreground" />
+        <h3 className="text-sm font-semibold">
+          {isHighSavings
+            ? "Save this report & get a consultation"
+            : "Save this report"}
+        </h3>
+      </div>
+      <p className="mb-5 text-xs text-muted-foreground">
         {isHighSavings
-          ? "🔥 You Could Save Big — Let's Talk"
-          : "📧 Save This Report"}
-      </h3>
-      <p className="mb-6 text-muted-foreground">
-        {isHighSavings
-          ? `With $${savingsAmount.toLocaleString()}/mo in potential savings, Credex can help you capture even more through discounted AI credits. Enter your email to save this report and get a personalized consultation.`
-          : "Enter your email to save this report and get notified when new optimizations apply to your stack."}
+          ? `With $${savingsAmount.toLocaleString()}/mo in potential savings, Credex can help capture even more through discounted credits.`
+          : "Get a link to this report and notifications when new optimizations apply."}
       </p>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Honeypot field — hidden from users, visible to bots */}
+      <form onSubmit={handleSubmit} className="space-y-3">
+        {/* Honeypot field */}
         <div className="absolute -left-[9999px] opacity-0" aria-hidden="true">
           <label htmlFor="website">Website</label>
           <input
@@ -100,7 +109,7 @@ export function LeadForm({ auditId, savingsAmount, onSuccess }: LeadFormProps) {
         </div>
 
         <div>
-          <Label htmlFor="lead-email">Work Email *</Label>
+          <Label htmlFor="lead-email" className="text-xs">Work email *</Label>
           <Input
             id="lead-email"
             type="email"
@@ -108,56 +117,72 @@ export function LeadForm({ auditId, savingsAmount, onSuccess }: LeadFormProps) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="mt-1.5"
+            className="mt-1"
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3">
           <div>
-            <Label htmlFor="lead-company">Company Name</Label>
+            <Label htmlFor="lead-company" className="text-xs">Company</Label>
             <Input
               id="lead-company"
               type="text"
               placeholder="Acme Inc."
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
-              className="mt-1.5"
+              className="mt-1"
             />
           </div>
           <div>
-            <Label htmlFor="lead-role">Your Role</Label>
+            <Label htmlFor="lead-role" className="text-xs">Role</Label>
             <Input
               id="lead-role"
               type="text"
               placeholder="Eng Manager"
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="mt-1.5"
+              className="mt-1"
             />
           </div>
         </div>
 
-        {error && (
-          <p className="text-sm text-red-500" role="alert">
-            {error}
-          </p>
-        )}
+        <AnimatePresence>
+          {error && (
+            <motion.p
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="text-xs text-danger"
+              role="alert"
+            >
+              {error}
+            </motion.p>
+          )}
+        </AnimatePresence>
 
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="w-full"
-          size="lg"
+          className="w-full rounded-lg"
+          size="default"
         >
-          {isSubmitting
-            ? "Saving..."
-            : isHighSavings
-              ? "Save Report & Book Consultation"
-              : "Save My Report"}
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+              Saving...
+            </>
+          ) : isHighSavings ? (
+            <>
+              Save & book consultation
+              <ArrowRight className="ml-1 h-3.5 w-3.5" />
+            </>
+          ) : (
+            "Save my report"
+          )}
         </Button>
 
-        <p className="text-center text-xs text-muted-foreground">
-          No spam. We&apos;ll only reach out about savings opportunities.
+        <p className="text-center text-[10px] text-muted-foreground">
+          No spam. Only savings opportunities.
         </p>
       </form>
     </div>
