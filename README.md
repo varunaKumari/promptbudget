@@ -1,127 +1,280 @@
-<<<<<<< HEAD
-# PromptBudget
+# PromptBudget — AI Spend Intelligence for Modern AI Teams
 
-**Free AI Spend Audit for Startups** — Find out if you're overspending on Cursor, Copilot, Claude, ChatGPT, and more.
+> Stop overspending on AI tools.  
+> Audit your stack, benchmark your spend, and uncover optimization opportunities in seconds.
 
-🔗 **Live**: [https://promptbudget.vercel.app](https://promptbudget.vercel.app)
+A premium AI spend intelligence platform built for startups, engineering teams, agencies, and AI-native companies.
+
+![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-38BDF8?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Framer Motion](https://img.shields.io/badge/Framer_Motion-black?style=for-the-badge&logo=framer&logoColor=blue)
+![Vercel](https://img.shields.io/badge/Vercel-black?style=for-the-badge&logo=vercel)
+![Claude AI](https://img.shields.io/badge/Claude-AI-orange?style=for-the-badge)
 
 ---
 
-## Quick Start
+## 🌐 Live Demo
 
-```bash
-# Clone
-git clone https://github.com/YOUR_USERNAME/promptbudget.git
-cd promptbudget
+👉 https://your-vercel-url.vercel.app
 
-# Install
-npm install
+---
 
-# Set up environment
-cp .env.example .env.local
-# Fill in: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY,
-# RESEND_API_KEY, ANTHROPIC_API_KEY, NEXT_PUBLIC_APP_URL
+## ✨ Overview
 
-# Run Supabase migrations (see ARCHITECTURE.md for SQL)
+PromptBudget helps companies understand where their AI budget is going — and where they're wasting money.
 
-# Dev
-npm run dev       # → http://localhost:3000
+The platform audits:
+- ChatGPT subscriptions
+- Claude plans
+- Cursor usage
+- GitHub Copilot
+- Gemini
+- OpenAI API spend
+- Anthropic API costs
+- Duplicate AI tooling
 
-# Test
-npm run test      # 30 tests, ~300ms
+Users receive:
+- actionable optimization recommendations
+- downgrade opportunities
+- benchmark comparisons
+- savings forecasts
+- AI-generated financial summaries
+- intelligent cost breakdowns
 
-# Build
-npm run build
-```
+Built with a strong focus on:
+- startup-grade UX
+- premium interactions
+- financial clarity
+- trust-driven design
+- real-world SaaS behavior
 
-## What It Does
+---
 
-PromptBudget audits your team's AI tool subscriptions and finds savings. For each tool, it checks:
+# 📸 Product Preview
 
-1. **Plan fit** — Are you on the right plan for your team size?
-2. **Cheaper plans** — Is there a cheaper plan from the same vendor?
-3. **Alternatives** — Is there a cheaper tool with similar capabilities?
-4. **Credex credits** — Can you save by purchasing through Credex?
+| Dashboard | Audit Results |
+|---|---|
+| AI Spend Analytics | Personalized Savings Insights |
 
-Results include a per-tool breakdown, personalized AI summary (via Claude), and shareable URL with OG tags.
+---
 
-## Stack
+# 🚀 Features
 
-| Layer | Tech |
-|-------|------|
-| Framework | Next.js 16, React 19, TypeScript |
-| Styling | Tailwind CSS v4, shadcn/ui |
-| Database | Supabase (PostgreSQL) |
-| Email | Resend |
-| AI | Anthropic Claude API (with template fallback) |
-| Testing | Vitest (30 tests, 8 groups) |
-| CI/CD | GitHub Actions |
-| Hosting | Vercel |
+## 💰 AI Spend Audit Engine
 
-## Features
+Analyze AI tooling costs across teams, plans, and vendors.
 
-- ✅ **10 AI tools** in the pricing database (Cursor, Copilot, Claude, ChatGPT, Gemini, Windsurf, v0, Replit, Anthropic API, OpenAI API)
-- ✅ **4-rule audit engine** with defensible, hardcoded logic
-- ✅ **AI summary** via Anthropic Claude with graceful template fallback
-- ✅ **Lead capture** with honeypot anti-spam and rate limiting
-- ✅ **Shareable URLs** with dynamic OG/Twitter card metadata
-- ✅ **Benchmark mode** — compare your spend/dev against industry averages
-- ✅ **Spend charts** — bar chart and donut chart visualizations (pure CSS, no libraries)
-- ✅ **Dark mode** with system preference detection
-- ✅ **Form persistence** via localStorage
-- ✅ **30 automated tests** across 8 test groups
-- ✅ **CI pipeline** — lint, test, type check, build
+### Capabilities
+- Overspend detection
+- Wrong-plan identification
+- Duplicate tool detection
+- Seat utilization analysis
+- Savings forecasting
+- Cost efficiency scoring
 
-## 5 Trade-Offs I Made
+---
 
-1. **Server-side audit vs. client-side**: Chose server-side to protect pricing data from being scraped via the client bundle. Trade-off: adds a network round-trip to get results.
+## 🤖 AI-Powered Financial Insights
 
-2. **Hardcoded logic vs. AI-generated recommendations**: All audit rules are hardcoded. This makes them verifiable (a finance person can check) but means adding new rules requires code changes. AI-generated advice would be non-deterministic.
+Claude-powered audit summaries generate personalized optimization insights based on real spending patterns.
 
-3. **In-memory rate limiting vs. Redis**: Used a simple in-memory Map for rate limiting. It resets on deploy, which means it's not persistent across serverless instances. Trade-off: simplicity and zero infrastructure vs. robustness.
+### Includes
+- Personalized summaries
+- Biggest savings opportunity
+- Financial recommendations
+- Confidence scoring
+- Smart next-step guidance
 
-4. **Pure CSS charts vs. chart library**: Built the bar and donut charts with CSS (flexbox, conic-gradient). Trade-off: lightweight and no dependencies, but limited interactivity compared to D3 or Recharts.
+Gracefully falls back to a deterministic summary engine if the AI API fails.
 
-5. **Template fallback vs. error state for AI summary**: When the Anthropic API fails, we show a templated summary instead of an error. Trade-off: always shows something useful, but the template is less personalized than the AI version.
+---
 
-## Project Structure
+## 📊 Interactive Analytics Dashboard
 
-```
-promptbudget/
-├── app/                    # Next.js App Router
-│   ├── page.tsx            # Landing page
-│   ├── audit/page.tsx      # Audit input form
-│   ├── results/[id]/       # Results page (server + client)
-│   └── api/                # API routes (audit, leads, summary)
-├── components/             # React components
-├── lib/                    # Core logic (types, pricing, engine, benchmarks)
-├── __tests__/              # Vitest test suite
-├── .github/workflows/      # CI pipeline
-└── [docs]                  # ARCHITECTURE, DEVLOG, GTM, etc.
-```
+Beautiful, responsive analytics built for modern SaaS experiences.
 
-## Required Files
+### Visualizations
+- Spend breakdown charts
+- Savings simulations
+- Cost allocation graphs
+- Benchmark comparisons
+- Trend forecasting
+- Tool overlap visualization
 
-| File | Description |
-|------|-------------|
-| `README.md` | This file |
-| `ARCHITECTURE.md` | System design, data flow, stack rationale |
-| `DEVLOG.md` | Daily build log |
-| `REFLECTION.md` | 5 reflective answers |
-| `TESTS.md` | Test documentation |
-| `PRICING_DATA.md` | Pricing sources with URLs |
-| `PROMPTS.md` | AI prompt design and iterations |
-| `GTM.md` | Go-to-market strategy |
-| `ECONOMICS.md` | Unit economics |
-| `USER_INTERVIEWS.md` | 3 user conversations |
-| `LANDING_COPY.md` | Landing page copy |
-| `METRICS.md` | North star + metrics framework |
-| `.github/workflows/ci.yml` | CI pipeline |
+---
 
-## License
+## ⚡ Premium UX System
 
-Built for the Credex Web Development Intern assessment. Not for redistribution.
-=======
-# promptbudget
-AI spend auditor — find waste in your AI tool subscriptions instantly
->>>>>>> d56e6a002d0711d7eea392f21404796086d74eec
+Designed to feel like a real funded startup product.
+
+### UI Features
+- Motion-powered interactions
+- Smooth transitions
+- Animated counters
+- Skeleton loading states
+- Progressive onboarding
+- Interactive sliders
+- Toast notifications
+- Sticky action elements
+- Microinteractions everywhere
+
+Inspired by:
+- Linear
+- Vercel
+- Stripe
+- Notion
+- Ramp
+- Perplexity
+
+---
+
+## 🔗 Shareable Reports
+
+Every audit can generate a shareable report page.
+
+### Includes
+- Public report links
+- Open Graph previews
+- Social sharing
+- Save-to-dashboard flow
+- Export-ready layouts
+
+---
+
+## 📩 Lead Capture & Persistence
+
+Production-grade lead capture system with backend persistence.
+
+### Features
+- Email-gated report saving
+- Supabase persistence
+- Transactional email flows
+- Resend integration
+- Validation & spam protection
+- Error recovery handling
+
+---
+
+# 🧠 Feature Deep Dive
+
+## 💸 Spend Intelligence Layer
+
+| Feature | Description |
+|---|---|
+| Optimization Score | Measures overall spend efficiency |
+| AI Spend Health Meter | Grades your AI infrastructure |
+| Savings Forecasting | Projects annual cost reductions |
+| Benchmark Engine | Compare against similar startups |
+| Tool Overlap Detection | Finds redundant subscriptions |
+| Team Efficiency Analysis | Measures seat utilization |
+
+---
+
+## 📈 Interactive Analytics
+
+| Feature | Description |
+|---|---|
+| Spend Breakdown Charts | Visualize vendor allocation |
+| Savings Distribution | Tool-by-tool optimization |
+| Monthly vs Annual Analysis | Long-term savings forecasting |
+| Benchmark Comparisons | Industry-relative analysis |
+| Trend Simulation | What-if cost projections |
+
+---
+
+## 🔐 Reliability & Error Handling
+
+| Feature | Description |
+|---|---|
+| AI Fallback System | Prevents failed summaries |
+| Graceful Error States | Better UX during failures |
+| Form Validation | Type-safe input handling |
+| Async Recovery | Prevents broken audit flows |
+| Secure API Layer | Protected backend operations |
+
+---
+
+# 🛠️ Tech Stack
+
+| Technology | Purpose |
+|---|---|
+| Next.js App Router | Full-stack React framework |
+| TypeScript | Type-safe architecture |
+| Tailwind CSS | Utility-first styling |
+| shadcn/ui | Accessible UI components |
+| Framer Motion | Premium animations |
+| Supabase | Database & backend |
+| Anthropic API | AI-generated summaries |
+| Resend | Transactional email delivery |
+| Recharts | Interactive data visualization |
+| React Hook Form | Form management |
+| Vercel | Edge deployment platform |
+
+---
+
+# 🎨 Design System
+
+## Color Palette
+
+| Color | Hex | Usage |
+|---|---|---|
+| Deep Black | `#050505` | Primary background |
+| Soft White | `#F5F7FA` | Main text |
+| Electric Blue | `#4F7CFF` | Primary actions |
+| Emerald | `#18C37E` | Savings indicators |
+| Crimson | `#FF5A5A` | Overspend warnings |
+| Amber | `#F5B942` | Alerts & notices |
+| Slate | `#8A94A6` | Secondary text |
+
+---
+
+## Typography
+
+| Font | Usage |
+|---|---|
+| Inter | UI & body text |
+| Geist | Headlines & premium sections |
+
+---
+
+## Design Philosophy
+
+PromptBudget focuses on:
+- clarity over clutter
+- premium motion
+- financial trust
+- actionable insights
+- intentional spacing
+- startup-grade UX polish
+
+The goal was to make the product feel:
+- handcrafted
+- intelligent
+- trustworthy
+- production-ready
+- visually premium
+
+---
+
+# 📁 Project Architecture
+
+```txt
+/app
+  /api
+  /dashboard
+  /audit
+  /results
+
+/components
+  /charts
+  /layout
+  /forms
+  /ui
+
+/lib
+/hooks
+/styles
+/types
+/public
