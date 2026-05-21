@@ -1,260 +1,102 @@
-# PromptBudget — AI Spend Intelligence for Modern AI Teams
+<div align="center">
+
+# 💸 PromptBudget
+
+### AI Spend Intelligence for Modern AI Teams
 
 > Stop overspending on AI tools.  
 > Audit your stack, benchmark your spend, and uncover optimization opportunities in seconds.
 
-A premium AI spend intelligence platform built for startups, engineering teams, agencies, and AI-native companies.
+[![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38BDF8?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Framer Motion](https://img.shields.io/badge/Framer_Motion-black?style=for-the-badge&logo=framer&logoColor=blue)](https://www.framer.com/motion/)
 
-![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-38BDF8?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![Framer Motion](https://img.shields.io/badge/Framer_Motion-black?style=for-the-badge&logo=framer&logoColor=blue)
-![Vercel](https://img.shields.io/badge/Vercel-black?style=for-the-badge&logo=vercel)
-![Claude AI](https://img.shields.io/badge/Claude-AI-orange?style=for-the-badge)
+<br />
 
----
+[🌐 Live Demo](https://your-vercel-url.vercel.app) · [📂 Repository](https://github.com/your-username/promptbudget) · [📝 Report Bug](https://github.com/your-username/promptbudget/issues)
 
-## 🌐 Live Demo
+<br />
 
-👉 https://your-vercel-url.vercel.app
+<img src="https://img.shields.io/badge/Status-Production_Ready-brightgreen?style=flat-square" />
+<img src="https://img.shields.io/badge/Responsive-Yes-blue?style=flat-square" />
+<img src="https://img.shields.io/badge/AI_Powered-Claude-orange?style=flat-square" />
+<img src="https://img.shields.io/badge/Deployment-Vercel-black?style=flat-square" />
 
----
-
-## ✨ Overview
-
-PromptBudget helps companies understand where their AI budget is going — and where they're wasting money.
-
-The platform audits:
-- ChatGPT subscriptions
-- Claude plans
-- Cursor usage
-- GitHub Copilot
-- Gemini
-- OpenAI API spend
-- Anthropic API costs
-- Duplicate AI tooling
-
-Users receive:
-- actionable optimization recommendations
-- downgrade opportunities
-- benchmark comparisons
-- savings forecasts
-- AI-generated financial summaries
-- intelligent cost breakdowns
-
-Built with a strong focus on:
-- startup-grade UX
-- premium interactions
-- financial clarity
-- trust-driven design
-- real-world SaaS behavior
+</div>
 
 ---
 
 # 📸 Product Preview
 
 | Dashboard | Audit Results |
-|---|---|
+|:---:|:---:|
 | AI Spend Analytics | Personalized Savings Insights |
 
----
-
-# 🚀 Features
-
-## 💰 AI Spend Audit Engine
-
-Analyze AI tooling costs across teams, plans, and vendors.
-
-### Capabilities
-- Overspend detection
-- Wrong-plan identification
-- Duplicate tool detection
-- Seat utilization analysis
-- Savings forecasting
-- Cost efficiency scoring
+> A premium AI spend intelligence platform built for startups, engineering teams, agencies, and AI-native companies.
 
 ---
 
-## 🤖 AI-Powered Financial Insights
+# ✨ Features at a Glance
 
-Claude-powered audit summaries generate personalized optimization insights based on real spending patterns.
+<table>
+<tr>
+<td width="50%">
 
-### Includes
-- Personalized summaries
-- Biggest savings opportunity
-- Financial recommendations
-- Confidence scoring
-- Smart next-step guidance
+## 💰 Core Platform Features
 
-Gracefully falls back to a deterministic summary engine if the AI API fails.
+- 📊 **AI Spend Auditing** — Analyze subscriptions, API costs, and tooling overlap
+- 🤖 **AI-Generated Insights** — Claude-powered financial recommendations
+- 📈 **Interactive Analytics** — Real-time charts & optimization forecasting
+- 🔐 **Secure Infrastructure** — Type-safe backend with protected API routes
+- ⚡ **Modern SaaS Experience** — Fast, responsive, startup-grade UX
 
----
+</td>
+<td width="50%">
 
-## 📊 Interactive Analytics Dashboard
+## 🚀 Premium Experience Features
 
-Beautiful, responsive analytics built for modern SaaS experiences.
+- 🎨 **Motion-Powered UI** — Smooth transitions & microinteractions
+- 📩 **Lead Capture System** — Save reports with Supabase persistence
+- 📄 **Shareable Audit Reports** — Public links & social previews
+- 🌙 **Dark Premium Interface** — Inspired by Linear & Vercel
+- 📱 **Fully Responsive** — Optimized for desktop, tablet & mobile
 
-### Visualizations
-- Spend breakdown charts
-- Savings simulations
-- Cost allocation graphs
-- Benchmark comparisons
-- Trend forecasting
-- Tool overlap visualization
-
----
-
-## ⚡ Premium UX System
-
-Designed to feel like a real funded startup product.
-
-### UI Features
-- Motion-powered interactions
-- Smooth transitions
-- Animated counters
-- Skeleton loading states
-- Progressive onboarding
-- Interactive sliders
-- Toast notifications
-- Sticky action elements
-- Microinteractions everywhere
-
-Inspired by:
-- Linear
-- Vercel
-- Stripe
-- Notion
-- Ramp
-- Perplexity
+</td>
+</tr>
+</table>
 
 ---
 
-## 🔗 Shareable Reports
+# 🎯 Platform Highlights
 
-Every audit can generate a shareable report page.
-
-### Includes
-- Public report links
-- Open Graph previews
-- Social sharing
-- Save-to-dashboard flow
-- Export-ready layouts
-
----
-
-## 📩 Lead Capture & Persistence
-
-Production-grade lead capture system with backend persistence.
-
-### Features
-- Email-gated report saving
-- Supabase persistence
-- Transactional email flows
-- Resend integration
-- Validation & spam protection
-- Error recovery handling
-
----
-
-# 🧠 Feature Deep Dive
-
-## 💸 Spend Intelligence Layer
-
-| Feature | Description |
-|---|---|
-| Optimization Score | Measures overall spend efficiency |
-| AI Spend Health Meter | Grades your AI infrastructure |
-| Savings Forecasting | Projects annual cost reductions |
-| Benchmark Engine | Compare against similar startups |
-| Tool Overlap Detection | Finds redundant subscriptions |
-| Team Efficiency Analysis | Measures seat utilization |
-
----
-
-## 📈 Interactive Analytics
-
-| Feature | Description |
-|---|---|
-| Spend Breakdown Charts | Visualize vendor allocation |
-| Savings Distribution | Tool-by-tool optimization |
-| Monthly vs Annual Analysis | Long-term savings forecasting |
-| Benchmark Comparisons | Industry-relative analysis |
-| Trend Simulation | What-if cost projections |
-
----
-
-## 🔐 Reliability & Error Handling
-
-| Feature | Description |
-|---|---|
-| AI Fallback System | Prevents failed summaries |
-| Graceful Error States | Better UX during failures |
-| Form Validation | Type-safe input handling |
-| Async Recovery | Prevents broken audit flows |
-| Secure API Layer | Protected backend operations |
+| Feature | Status | Implementation |
+|:---|:---:|:---|
+| **AI Spend Audit Engine** | ✅ | Detects overspending, overlap, and optimization opportunities |
+| **Claude-Powered Insights** | ✅ | Personalized financial recommendations & summaries |
+| **Interactive Analytics Dashboard** | ✅ | Charts, forecasting, benchmarks & savings simulation |
+| **Shareable Reports** | ✅ | Public audit pages with Open Graph previews |
+| **Premium UX System** | ✅ | Framer Motion animations & polished interactions |
+| **Production Backend** | ✅ | Supabase persistence with secure API handling |
 
 ---
 
 # 🛠️ Tech Stack
 
 | Technology | Purpose |
-|---|---|
-| Next.js App Router | Full-stack React framework |
-| TypeScript | Type-safe architecture |
-| Tailwind CSS | Utility-first styling |
-| shadcn/ui | Accessible UI components |
-| Framer Motion | Premium animations |
-| Supabase | Database & backend |
-| Anthropic API | AI-generated summaries |
-| Resend | Transactional email delivery |
-| Recharts | Interactive data visualization |
-| React Hook Form | Form management |
-| Vercel | Edge deployment platform |
-
----
-
-# 🎨 Design System
-
-## Color Palette
-
-| Color | Hex | Usage |
-|---|---|---|
-| Deep Black | `#050505` | Primary background |
-| Soft White | `#F5F7FA` | Main text |
-| Electric Blue | `#4F7CFF` | Primary actions |
-| Emerald | `#18C37E` | Savings indicators |
-| Crimson | `#FF5A5A` | Overspend warnings |
-| Amber | `#F5B942` | Alerts & notices |
-| Slate | `#8A94A6` | Secondary text |
-
----
-
-## Typography
-
-| Font | Usage |
-|---|---|
-| Inter | UI & body text |
-| Geist | Headlines & premium sections |
-
----
-
-## Design Philosophy
-
-PromptBudget focuses on:
-- clarity over clutter
-- premium motion
-- financial trust
-- actionable insights
-- intentional spacing
-- startup-grade UX polish
-
-The goal was to make the product feel:
-- handcrafted
-- intelligent
-- trustworthy
-- production-ready
-- visually premium
+|:---|:---|
+| **Next.js 16 App Router** | Full-stack React framework |
+| **TypeScript** | End-to-end type safety |
+| **Tailwind CSS** | Utility-first styling system |
+| **shadcn/ui** | Accessible component library |
+| **Framer Motion** | Premium animations & transitions |
+| **Supabase** | Database & backend persistence |
+| **Anthropic API** | AI-generated financial summaries |
+| **Resend** | Transactional email delivery |
+| **Recharts** | Interactive analytics visualizations |
+| **React Hook Form** | Form handling & validation |
+| **Vercel** | Edge deployment & hosting |
 
 ---
 
@@ -262,19 +104,41 @@ The goal was to make the product feel:
 
 ```txt
 /app
-  /api
-  /dashboard
-  /audit
-  /results
+├── /api                     # Backend API routes
+├── /dashboard               # Analytics dashboard pages
+├── /audit                   # Spend audit workflow
+├── /results                 # Audit result pages
+├── layout.tsx               # Root layout
+├── page.tsx                 # Landing page
+└── globals.css              # Global styles
 
 /components
-  /charts
-  /layout
-  /forms
-  /ui
+├── /charts                  # Analytics charts
+├── /layout                  # Navbar, footer, wrappers
+├── /forms                   # Audit & onboarding forms
+├── /dashboard               # Dashboard UI sections
+├── /reports                 # Report components
+└── /ui                      # Reusable shadcn/ui components
 
 /lib
+├── audit-engine.ts          # Spend analysis logic
+├── ai-summary.ts            # Claude summary generation
+├── benchmark-engine.ts      # Benchmark comparison logic
+├── cost-calculator.ts       # Savings calculations
+└── validations.ts           # Zod schemas & validation
+
 /hooks
+├── useAudit.ts              # Audit workflow state
+├── useTheme.ts              # Dark mode management
+├── useAnalytics.ts          # Dashboard calculations
+└── useDebounce.ts           # Input optimization
+
 /styles
+└── animations.css           # Motion & transitions
+
 /types
+└── index.ts                 # Shared TypeScript types
+
 /public
+├── images                   # Marketing & dashboard assets
+└── icons                    # Platform branding
