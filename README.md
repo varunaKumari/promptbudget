@@ -142,3 +142,120 @@
 /public
 ├── images                   # Marketing & dashboard assets
 └── icons                    # Platform branding
+
+## 🎨 Design Decisions
+
+### Why This Layout?
+PromptBudget is designed like a **premium financial intelligence dashboard** — high-signal analytics on the left, actionable optimization insights on the right, and clear audit flows throughout the experience.
+
+The layout focuses on:
+- fast financial understanding
+- trust-driven presentation
+- premium SaaS aesthetics
+- decision-oriented UX
+- minimal cognitive overload
+
+The goal was to make AI spending feel:
+- measurable
+- transparent
+- actionable
+- intelligently optimized
+
+---
+
+### Dynamic Financial Color System
+
+Each state inside the platform uses a **purpose-driven semantic color palette**:
+
+- Savings opportunities → Emerald green
+- Overspending warnings → Crimson red
+- Recommendations → Electric blue
+- Alerts & risk → Amber yellow
+- Neutral analytics → Slate gray
+
+These colors flow consistently through:
+- analytics charts
+- optimization cards
+- savings indicators
+- dashboard widgets
+- benchmark comparisons
+- interactive tooltips
+
+| Color | Meaning | Usage |
+|:---|:---|:---|
+| 💚 Emerald | Savings & optimization | Cost reductions, efficiency |
+| 🔵 Electric Blue | Primary actions | Buttons, navigation, insights |
+| 🔴 Crimson | Overspending | Warnings & risk indicators |
+| 🟡 Amber | Attention needed | Alerts & recommendations |
+| ⚫ Deep Black | Premium foundation | Dashboard backgrounds |
+
+---
+
+### AI-Powered Insight System
+
+Every audit generates a personalized AI summary powered by Claude AI.
+
+The summaries:
+- explain spending patterns
+- identify optimization opportunities
+- estimate annual savings
+- provide next-step recommendations
+- benchmark against similar companies
+
+This makes the platform feel more like an intelligent financial advisor instead of a static analytics dashboard.
+
+---
+
+### Trust-Driven Dashboard UX
+
+The dashboard prioritizes:
+- clarity over clutter
+- actionable metrics first
+- progressive information reveal
+- smooth onboarding flow
+- meaningful visual hierarchy
+
+Large savings numbers, spend charts, and optimization scores are intentionally emphasized to help users instantly understand where they are losing money.
+
+---
+
+## 📱 Responsive Design
+
+| Screen | Layout | Behavior |
+|:---|:---|:---|
+| **Desktop (1440px+)** | Multi-panel analytics workspace | Full dashboard, charts & insights visible simultaneously |
+| **Tablet (768px+)** | Responsive analytics grid | Optimized spacing with touch-friendly controls |
+| **Mobile (<768px)** | Stacked audit experience | Simplified navigation with progressive sections |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- **Node.js 18+** installed
+- **npm**, **pnpm**, or **yarn**
+- **Supabase account**
+- **Anthropic API key**
+- **Resend API key**
+- **Git** installed
+
+---
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/your-username/promptbudget.git
+
+# Navigate into the project
+cd promptbudget
+
+# Install dependencies
+npm install
+
+# Configure environment variables
+cp .env.example .env.local
+
+# Start development server
+npm run dev
