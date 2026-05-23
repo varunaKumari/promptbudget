@@ -3,8 +3,16 @@
 // ============================================================
 
 import { NextRequest } from "next/server";
+import { resolveChatIdentity } from "@/lib/chat/auth";
 import { listConversations } from "@/lib/chat/conversations";
-import { chatLogger } from "@/lib/chat/logging";
+import { trackChatEvent } from "@/lib/chat/monitoring";
+import {
+  ChatHttpError,
+  enforceRateLimit,
+  getGuardContext,
+  jsonError,
+  withSecurityHeaders,
+} from "@/lib/chat/security";
 import {
   buildChatSessionCookie,
   createChatSessionId,
@@ -16,11 +24,22 @@ export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
   const requestId = request.headers.get("x-request-id") || crypto.randomUUID();
+  const guard = getGuardContext(request);
+  const startedAt = Date.now();
 
   try {
+    enforceRateLimit({
+      key: `chat:list:${guard.ip}`,
+      limit: 80,
+      windowMs: 10 * 60 * 1000,
+      requestId,
+    });
+
     const sessionId = getChatSessionId(request) || createChatSessionId();
+    const identity = await resolveChatIdentity({ request, requestId });
     const conversations = await listConversations({
       anonymousSessionId: sessionId,
+      userId: identity.userId,
       requestId,
     });
 
@@ -36,19 +55,21 @@ export async function GET(request: NextRequest) {
     );
 
     response.headers.append("Set-Cookie", buildChatSessionCookie(sessionId));
-    return response;
+    return withSecurityHeaders(response);
   } catch (err) {
-    chatLogger.error("conversations_request_failed", {
+    trackChatEvent({
+      level: "error",
+      event: "conversations_request_failed",
+      route: "/api/chat/conversations",
       requestId,
-      message: err instanceof Error ? err.message : String(err),
+      latencyMs: Date.now() - startedAt,
+      error: err,
     });
 
-    return Response.json(
-      {
-        success: false,
-        error: "Unable to load chat conversations.",
-      } satisfies ApiResponse,
-      { status: 500 }
-    );
+    if (err instanceof ChatHttpError) {
+      return jsonError(err.message, err.status, err.headers);
+    }
+
+    return jsonError("Unable to load chat conversations.", 500);
   }
 }

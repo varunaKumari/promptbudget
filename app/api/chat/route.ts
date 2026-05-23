@@ -3,25 +3,40 @@
 // Persists conversation history when Supabase chat tables exist.
 // ============================================================
 
-import { streamText, type ModelMessage } from "ai";
+import { streamText } from "ai";
 import { NextRequest } from "next/server";
-import { buildContextPrompt, buildSystemPrompt } from "@/lib/ai/prompts";
+import { buildChatMessages } from "@/lib/ai/context";
+import { buildSystemPrompt } from "@/lib/ai/prompts";
 import { getChatModel, getChatModelId } from "@/lib/ai/provider";
-import { chatRequestSchema, formatZodError } from "@/lib/ai/schemas";
+import { chatRequestSchema } from "@/lib/ai/schemas";
+import { resolveChatIdentity } from "@/lib/chat/auth";
 import {
   fetchAuditForChat,
   getOrCreateConversation,
   getRecentMessages,
   saveChatMessage,
 } from "@/lib/chat/conversations";
-import { chatLogger } from "@/lib/chat/logging";
-import { checkRateLimit, getClientIp } from "@/lib/chat/rate-limit";
+import { trackChatEvent } from "@/lib/chat/monitoring";
+import { retrieveRelevantMemories, saveTurnMemory } from "@/lib/chat/memory";
+import {
+  assertAllowedOrigin,
+  ChatHttpError,
+  enforceRateLimit,
+  getGuardContext,
+  jsonError,
+  parseJsonBody,
+  parseOrThrow,
+  withSecurityHeaders,
+} from "@/lib/chat/security";
 import {
   buildChatSessionCookie,
   createChatSessionId,
   getChatSessionId,
 } from "@/lib/chat/session";
-import type { ApiResponse } from "@/lib/types";
+import {
+  buildUserContext,
+  updateUserProfileFromTurn,
+} from "@/lib/chat/user-context";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -31,50 +46,32 @@ const RATE_WINDOW_MS = 10 * 60 * 1000;
 
 export async function POST(request: NextRequest) {
   const requestId = request.headers.get("x-request-id") || crypto.randomUUID();
+  const guard = getGuardContext(request);
   const startedAt = Date.now();
 
   try {
-    const ip = getClientIp(request.headers);
-    const rateLimit = checkRateLimit({
-      key: `chat:${ip}`,
+    assertAllowedOrigin(request);
+    enforceRateLimit({
+      key: `chat:ip:${guard.ip}`,
       limit: RATE_LIMIT,
       windowMs: RATE_WINDOW_MS,
+      requestId,
     });
 
-    if (!rateLimit.allowed) {
-      chatLogger.warn("rate_limited", { requestId, ip });
-      return Response.json(
-        {
-          success: false,
-          error: "Too many chat messages. Please try again in a few minutes.",
-        } satisfies ApiResponse,
-        {
-          status: 429,
-          headers: {
-            "Retry-After": String(Math.ceil((rateLimit.resetAt - Date.now()) / 1000)),
-          },
-        }
-      );
-    }
-
-    const parsed = chatRequestSchema.safeParse(await request.json());
-
-    if (!parsed.success) {
-      return Response.json(
-        {
-          success: false,
-          error: formatZodError(parsed.error),
-        } satisfies ApiResponse,
-        { status: 400 }
-      );
-    }
-
-    const body = parsed.data;
+    const body = parseOrThrow(chatRequestSchema, await parseJsonBody(request));
     const anonymousSessionId = getChatSessionId(request) || createChatSessionId();
+    const identity = await resolveChatIdentity({ request, requestId });
+    enforceRateLimit({
+      key: `chat:owner:${identity.userId || anonymousSessionId}`,
+      limit: identity.userId ? 60 : 30,
+      windowMs: RATE_WINDOW_MS,
+      requestId,
+    });
 
     const conversation = await getOrCreateConversation({
       conversationId: body.conversationId,
       anonymousSessionId,
+      userId: identity.userId,
       auditId: body.auditId,
       requestId,
     });
@@ -84,9 +81,25 @@ export async function POST(request: NextRequest) {
       getRecentMessages({
         conversationId: conversation.conversationId,
         anonymousSessionId,
+        userId: identity.userId,
         requestId,
       }),
     ]);
+
+    const user = await buildUserContext({
+      identity,
+      anonymousSessionId,
+      audit,
+      requestId,
+    });
+
+    const memories = await retrieveRelevantMemories({
+      user,
+      anonymousSessionId,
+      query: body.message,
+      auditId: body.auditId,
+      requestId,
+    });
 
     await saveChatMessage({
       conversationId: conversation.conversationId,
@@ -96,35 +109,44 @@ export async function POST(request: NextRequest) {
         requestId,
         auditId: body.auditId || null,
         pagePath: body.pagePath || null,
+        attachments:
+          body.attachments?.map((attachment) => ({
+            id: attachment.id,
+            name: attachment.name,
+            mediaType: attachment.mediaType,
+            size: attachment.size,
+            kind: attachment.kind,
+            hasExtractedText: !!attachment.extractedText,
+            hasDataUrl: !!attachment.dataUrl,
+          })) || [],
       },
       requestId,
     });
 
     const modelId = getChatModelId();
-    const messages: ModelMessage[] = [
-      {
-        role: "user",
-        content: buildContextPrompt({
-          audit,
-          pagePath: body.pagePath,
-          pageTitle: body.clientContext?.pageTitle,
-        }),
-      },
-      ...recentMessages.map((message) => ({
-        role: message.role as "user" | "assistant",
-        content: trimForContext(message.content),
-      })),
-      {
-        role: "user",
-        content: body.message,
-      },
-    ];
+    const messages = buildChatMessages({
+      audit,
+      pagePath: body.pagePath,
+      pageTitle: body.clientContext?.pageTitle,
+      user,
+      memories,
+      recentMessages,
+      userMessage: body.message,
+      attachments: body.attachments || [],
+    });
 
-    chatLogger.info("stream_start", {
+    trackChatEvent({
+      level: "info",
+      event: "stream_start",
+      route: "/api/chat",
       requestId,
-      conversationId: conversation.conversationId,
-      auditId: body.auditId,
-      model: modelId,
+      metadata: {
+        conversationId: conversation.conversationId,
+        auditId: body.auditId,
+        model: modelId,
+        memoryCount: memories.length,
+        userSource: user.source,
+      },
     });
 
     const result = streamText({
@@ -133,6 +155,7 @@ export async function POST(request: NextRequest) {
       messages,
       maxOutputTokens: 700,
       temperature: 0.4,
+      maxRetries: 2,
       onFinish: async (event) => {
         await saveChatMessage({
           conversationId: conversation.conversationId,
@@ -153,18 +176,46 @@ export async function POST(request: NextRequest) {
           requestId,
         });
 
-        chatLogger.info("stream_finish", {
+        void Promise.all([
+          updateUserProfileFromTurn({
+            user,
+            anonymousSessionId,
+            audit,
+            requestId,
+          }),
+          saveTurnMemory({
+            user,
+            anonymousSessionId,
+            conversationId: conversation.conversationId,
+            userMessage: body.message,
+            assistantMessage: event.text,
+            audit,
+            requestId,
+          }),
+        ]);
+
+        trackChatEvent({
+          level: "info",
+          event: "stream_finish",
+          route: "/api/chat",
           requestId,
-          conversationId: conversation.conversationId,
-          finishReason: event.finishReason,
           latencyMs: Date.now() - startedAt,
+          metadata: {
+            conversationId: conversation.conversationId,
+            finishReason: event.finishReason,
+          },
         });
       },
       onError: (error) => {
-        chatLogger.error("stream_error", {
+        trackChatEvent({
+          level: "error",
+          event: "stream_error",
+          route: "/api/chat",
           requestId,
-          conversationId: conversation.conversationId,
-          message: error instanceof Error ? error.message : String(error),
+          error,
+          metadata: {
+            conversationId: conversation.conversationId,
+          },
         });
       },
     });
@@ -181,29 +232,29 @@ export async function POST(request: NextRequest) {
       buildChatSessionCookie(anonymousSessionId)
     );
 
-    return response;
+    return withSecurityHeaders(response);
   } catch (err) {
-    chatLogger.error("request_failed", {
+    trackChatEvent({
+      level: "error",
+      event: "request_failed",
+      route: "/api/chat",
       requestId,
-      message: err instanceof Error ? err.message : String(err),
       latencyMs: Date.now() - startedAt,
+      error: err,
     });
+
+    if (err instanceof ChatHttpError) {
+      return jsonError(err.message, err.status, err.headers);
+    }
 
     const isConfigError =
       err instanceof Error && err.message.includes("OPENAI_API_KEY");
 
-    return Response.json(
-      {
-        success: false,
-        error: isConfigError
-          ? "AI chat is not configured yet."
-          : "The assistant is unavailable right now. Please try again.",
-      } satisfies ApiResponse,
-      { status: isConfigError ? 503 : 500 }
+    return jsonError(
+      isConfigError
+        ? "AI chat is not configured yet."
+        : "The assistant is unavailable right now. Please try again.",
+      isConfigError ? 503 : 500
     );
   }
-}
-
-function trimForContext(content: string): string {
-  return content.length > 1800 ? `${content.slice(0, 1800)}...` : content;
 }

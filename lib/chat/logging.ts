@@ -10,7 +10,7 @@ interface LogFields {
 function write(level: LogLevel, event: string, fields: LogFields = {}) {
   const payload = {
     event,
-    ...fields,
+    ...sanitizeFields(fields),
   };
 
   if (level === "error") {
@@ -24,6 +24,17 @@ function write(level: LogLevel, event: string, fields: LogFields = {}) {
   }
 
   console.info("[chat]", payload);
+}
+
+function sanitizeFields(fields: LogFields): LogFields {
+  return Object.fromEntries(
+    Object.entries(fields).map(([key, value]) => [
+      key,
+      typeof value === "string"
+        ? value.replace(/(sk-[a-zA-Z0-9_-]{8,})/g, "sk-***")
+        : value,
+    ])
+  );
 }
 
 export const chatLogger = {

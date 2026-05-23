@@ -11,5 +11,6 @@ export function createChatSessionId(): string {
 }
 
 export function buildChatSessionCookie(sessionId: string): string {
-  return `${CHAT_SESSION_COOKIE}=${sessionId}; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000`;
+  const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
+  return `${CHAT_SESSION_COOKIE}=${sessionId}; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000${secure}`;
 }

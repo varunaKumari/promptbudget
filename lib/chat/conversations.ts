@@ -5,19 +5,24 @@ import type {
   ChatRole,
   StoredChatMessage,
 } from "@/lib/ai/types";
+import { getCached, setCached } from "./cache";
 import { chatLogger } from "./logging";
+import { withRetry } from "./retry";
 
-const MAX_HISTORY_MESSAGES = 16;
+const MAX_HISTORY_MESSAGES = 10;
 const MAX_STORED_MESSAGES = 100;
+const AUDIT_CACHE_TTL_MS = 60 * 1000;
 
 export async function getOrCreateConversation({
   conversationId,
   anonymousSessionId,
+  userId,
   auditId,
   requestId,
 }: {
   conversationId?: string;
   anonymousSessionId: string;
+  userId?: string;
   auditId?: string;
   requestId: string;
 }): Promise<ChatPersistenceResult> {
@@ -29,13 +34,19 @@ export async function getOrCreateConversation({
   }
 
   if (conversationId) {
-    const { data, error } = await supabaseAdmin
+    let query = supabaseAdmin
       .from("chat_conversations")
       .select("id")
       .eq("id", conversationId)
-      .eq("anonymous_session_id", anonymousSessionId)
-      .neq("status", "deleted")
-      .maybeSingle();
+      .neq("status", "deleted");
+
+    query = userId
+      ? query.eq("user_id", userId)
+      : query.eq("anonymous_session_id", anonymousSessionId);
+
+    const { data, error } = await withRetry({
+      operation: async () => await query.maybeSingle(),
+    });
 
     if (error) {
       chatLogger.warn("conversation_lookup_failed", {
@@ -50,15 +61,19 @@ export async function getOrCreateConversation({
     }
   }
 
-  const { data, error } = await supabaseAdmin
-    .from("chat_conversations")
-    .insert({
-      anonymous_session_id: anonymousSessionId,
-      audit_id: auditId || null,
-      metadata: {},
-    })
-    .select("id")
-    .single();
+  const { data, error } = await withRetry({
+    operation: async () =>
+      await supabaseAdmin
+        .from("chat_conversations")
+        .insert({
+          user_id: userId || null,
+          anonymous_session_id: anonymousSessionId,
+          audit_id: auditId || null,
+          metadata: {},
+        })
+        .select("id")
+        .single(),
+  });
 
   if (error || !data?.id) {
     chatLogger.warn("conversation_create_failed", {
@@ -78,20 +93,26 @@ export async function getOrCreateConversation({
 export async function getRecentMessages({
   conversationId,
   anonymousSessionId,
+  userId,
   requestId,
 }: {
   conversationId: string;
   anonymousSessionId: string;
+  userId?: string;
   requestId: string;
 }): Promise<StoredChatMessage[]> {
   if (!isSupabaseConfigured) return [];
 
-  const { data: conversation } = await supabaseAdmin
+  let conversationQuery = supabaseAdmin
     .from("chat_conversations")
     .select("id")
-    .eq("id", conversationId)
-    .eq("anonymous_session_id", anonymousSessionId)
-    .maybeSingle();
+    .eq("id", conversationId);
+
+  conversationQuery = userId
+    ? conversationQuery.eq("user_id", userId)
+    : conversationQuery.eq("anonymous_session_id", anonymousSessionId);
+
+  const { data: conversation } = await conversationQuery.maybeSingle();
 
   if (!conversation) return [];
 
@@ -123,22 +144,54 @@ export async function getRecentMessages({
     .filter((message) => message.role === "user" || message.role === "assistant");
 }
 
+export async function assertConversationAccess({
+  conversationId,
+  anonymousSessionId,
+  userId,
+}: {
+  conversationId: string;
+  anonymousSessionId: string;
+  userId?: string;
+}): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+
+  let query = supabaseAdmin
+    .from("chat_conversations")
+    .select("id")
+    .eq("id", conversationId)
+    .neq("status", "deleted");
+
+  query = userId
+    ? query.eq("user_id", userId)
+    : query.eq("anonymous_session_id", anonymousSessionId);
+
+  const { data, error } = await query.maybeSingle();
+  return !error && !!data?.id;
+}
+
 export async function listConversations({
   anonymousSessionId,
+  userId,
   requestId,
 }: {
   anonymousSessionId: string;
+  userId?: string;
   requestId: string;
 }) {
   if (!isSupabaseConfigured) return [];
 
-  const { data, error } = await supabaseAdmin
+  let query = supabaseAdmin
     .from("chat_conversations")
     .select("id, audit_id, title, status, created_at, updated_at, metadata")
-    .eq("anonymous_session_id", anonymousSessionId)
     .neq("status", "deleted")
     .order("updated_at", { ascending: false })
     .limit(20);
+
+  query = userId
+    ? query.eq("user_id", userId)
+    : query.eq("anonymous_session_id", anonymousSessionId);
+
+  const { data, error } = await query;
 
   if (error) {
     chatLogger.warn("conversations_list_failed", {
@@ -154,21 +207,27 @@ export async function listConversations({
 export async function getConversationMessages({
   conversationId,
   anonymousSessionId,
+  userId,
   requestId,
 }: {
   conversationId: string;
   anonymousSessionId: string;
+  userId?: string;
   requestId: string;
 }): Promise<StoredChatMessage[]> {
   if (!isSupabaseConfigured) return [];
 
-  const { data: conversation } = await supabaseAdmin
+  let conversationQuery = supabaseAdmin
     .from("chat_conversations")
     .select("id")
     .eq("id", conversationId)
-    .eq("anonymous_session_id", anonymousSessionId)
-    .neq("status", "deleted")
-    .maybeSingle();
+    .neq("status", "deleted");
+
+  conversationQuery = userId
+    ? conversationQuery.eq("user_id", userId)
+    : conversationQuery.eq("anonymous_session_id", anonymousSessionId);
+
+  const { data: conversation } = await conversationQuery.maybeSingle();
 
   if (!conversation) return [];
 
@@ -200,19 +259,26 @@ export async function getConversationMessages({
 export async function archiveConversation({
   conversationId,
   anonymousSessionId,
+  userId,
   requestId,
 }: {
   conversationId: string;
   anonymousSessionId: string;
+  userId?: string;
   requestId: string;
 }): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
 
-  const { error } = await supabaseAdmin
+  let query = supabaseAdmin
     .from("chat_conversations")
     .update({ status: "deleted", updated_at: new Date().toISOString() })
-    .eq("id", conversationId)
-    .eq("anonymous_session_id", anonymousSessionId);
+    .eq("id", conversationId);
+
+  query = userId
+    ? query.eq("user_id", userId)
+    : query.eq("anonymous_session_id", anonymousSessionId);
+
+  const { error } = await query;
 
   if (error) {
     chatLogger.warn("conversation_archive_failed", {
@@ -246,13 +312,16 @@ export async function saveChatMessage({
   if (!isSupabaseConfigured) return;
   if (!content.trim()) return;
 
-  const { error } = await supabaseAdmin.from("chat_messages").insert({
-    conversation_id: conversationId,
-    role,
-    content,
-    model: model || null,
-    token_count: tokenCount || null,
-    metadata: metadata || {},
+  const { error } = await withRetry({
+    operation: async () =>
+      await supabaseAdmin.from("chat_messages").insert({
+        conversation_id: conversationId,
+        role,
+        content,
+        model: model || null,
+        token_count: tokenCount || null,
+        metadata: metadata || {},
+      }),
   });
 
   if (error) {
@@ -279,6 +348,9 @@ export async function fetchAuditForChat({
   requestId: string;
 }): Promise<AuditResult | undefined> {
   if (!auditId || !isSupabaseConfigured) return undefined;
+  const cacheKey = `audit:${auditId}`;
+  const cached = getCached<AuditResult>(cacheKey);
+  if (cached) return cached;
 
   const { data, error } = await supabaseAdmin
     .from("audits")
@@ -302,5 +374,5 @@ export async function fetchAuditForChat({
   result.aiSummary = data.ai_summary || undefined;
   result.createdAt = data.created_at;
 
-  return result;
+  return setCached(cacheKey, result, AUDIT_CACHE_TTL_MS);
 }
