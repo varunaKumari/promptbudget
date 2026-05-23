@@ -248,7 +248,10 @@ export async function POST(request: NextRequest) {
     }
 
     const isConfigError =
-      err instanceof Error && err.message.includes("OPENAI_API_KEY");
+      err instanceof Error &&
+      (err.message.includes("OPENAI_API_KEY") ||
+        err.message.includes("ANTHROPIC_API_KEY") ||
+        err.message.includes("AI provider key"));
 
     return jsonError(
       isConfigError
