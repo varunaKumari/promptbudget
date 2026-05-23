@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { FadeIn, SlideUp, CountUp } from "@/components/ui/motion";
 
 const heroRows = [
@@ -95,11 +95,6 @@ export function LandingHero() {
     <section className="relative overflow-hidden border-b border-border">
       <div className="pointer-events-none absolute inset-0 dot-grid opacity-70" />
       <div className="relative mx-auto max-w-7xl px-5 pb-20 pt-16 md:px-8 md:pb-24 md:pt-24">
-        <FadeIn className="mb-8 inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-sm text-muted-foreground shadow-sm">
-          <CheckCircle2 className="h-4 w-4 text-primary" />
-          Free AI spend audit, no login required
-        </FadeIn>
-
         <div className="grid gap-10 lg:grid-cols-[0.86fr_0.54fr] lg:items-end">
           <SlideUp>
             <h1 className="max-w-5xl text-5xl font-semibold leading-[0.98] tracking-normal md:text-7xl lg:text-8xl">

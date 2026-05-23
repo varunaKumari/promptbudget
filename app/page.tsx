@@ -6,6 +6,7 @@ import { LandingHowItWorks } from "@/components/landing/how-it-works";
 import { LandingFeatures } from "@/components/landing/features";
 import { LandingSocialProof } from "@/components/landing/social-proof";
 import { LandingCta } from "@/components/landing/cta";
+import { FaqSection } from "@/components/faq-section";
 import { SiteFooter } from "@/components/site-footer";
 
 export const metadata: Metadata = {
@@ -37,6 +38,7 @@ export default function Home() {
         <LandingFeatures />
         <LandingSocialProof />
         <LandingCta />
+        <FaqSection />
       </main>
       <SiteFooter />
     </div>
