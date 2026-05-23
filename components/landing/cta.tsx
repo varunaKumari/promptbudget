@@ -6,23 +6,31 @@ import { FadeIn } from "@/components/ui/motion";
 
 export function LandingCta() {
   return (
-    <section className="px-6 py-12 pb-24">
+    <section className="px-5 py-24 md:px-8">
       <FadeIn>
-        <div className="mx-auto max-w-3xl rounded-2xl border border-primary/20 bg-primary/[0.03] p-10 text-center md:p-14">
-          <h2 className="mb-3 text-2xl font-bold tracking-tight md:text-3xl">
-            Stop guessing. Start saving.
-          </h2>
-          <p className="mb-8 text-base text-muted-foreground">
-            Find out exactly what your AI stack costs — and what it should cost.
-            No signup. No credit card. Just answers.
-          </p>
-          <Link
-            href="/audit"
-            className="group inline-flex h-12 items-center gap-2 rounded-xl bg-foreground px-8 text-base font-semibold text-background transition-all hover:shadow-lg hover:shadow-foreground/5"
-          >
-            Start your free audit
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </Link>
+        <div className="mx-auto max-w-7xl overflow-hidden rounded-lg border border-border bg-foreground text-background">
+          <div className="grid gap-8 p-8 md:grid-cols-[0.8fr_0.4fr] md:items-end md:p-12">
+            <div>
+              <p className="mb-4 text-sm font-semibold text-background/60">
+                Ready when the budget review is not.
+              </p>
+              <h2 className="max-w-4xl text-4xl font-semibold leading-tight tracking-normal md:text-6xl">
+                Stop guessing what your AI stack should cost.
+              </h2>
+            </div>
+            <div>
+              <p className="mb-6 text-base leading-relaxed text-background/68">
+                Run the free audit and get a shareable report with exact savings opportunities.
+              </p>
+              <Link
+                href="/audit"
+                className="inline-flex h-12 items-center justify-center rounded-md bg-primary px-6 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90"
+              >
+                Start your free audit
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </div>
+          </div>
         </div>
       </FadeIn>
     </section>

@@ -89,15 +89,18 @@ export default function AuditPage() {
 
   // Load persisted form state
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved) as FormState;
-        setForm(parsed);
+    const timer = window.setTimeout(() => {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved) as FormState;
+          setForm(parsed);
+        }
+      } catch {
+        // Ignore parse errors
       }
-    } catch {
-      // Ignore parse errors
-    }
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   // Persist form state on changes
@@ -224,19 +227,38 @@ export default function AuditPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar showAuditCta={false} maxWidth="max-w-3xl" />
+      <Navbar showAuditCta={false} maxWidth="max-w-7xl" />
 
-      <main className="flex-1 mx-auto w-full max-w-3xl px-6 py-10">
+      <main className="flex-1">
+        <section className="relative border-b border-border px-5 py-12 md:px-8 md:py-16">
+          <div className="pointer-events-none absolute inset-0 dot-grid opacity-60" />
+          <div className="relative mx-auto max-w-7xl">
+            <p className="mb-4 text-sm font-semibold text-muted-foreground">
+              AI spend audit
+            </p>
+            <div className="grid gap-8 lg:grid-cols-[0.74fr_0.42fr] lg:items-end">
+              <h1 className="max-w-4xl text-5xl font-semibold leading-[1.02] tracking-normal md:text-7xl">
+                Build the report your AI budget has been missing.
+              </h1>
+              <p className="text-lg leading-relaxed text-muted-foreground">
+                Add your paid AI tools, seats, and plans. PromptBudget turns the
+                stack into a savings report with specific actions.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <div className="mx-auto grid w-full max-w-7xl gap-8 px-5 py-10 md:px-8 lg:grid-cols-[1fr_330px]">
+          <div>
         {/* Page Header */}
         <SlideUp className="mb-8">
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="mb-2 text-2xl font-bold tracking-tight md:text-3xl">
-                Audit your AI spend
-              </h1>
+              <h2 className="mb-2 text-2xl font-semibold tracking-normal md:text-3xl">
+                Your stack
+              </h2>
               <p className="text-sm text-muted-foreground">
-                Add your tools below, or start with a preset. The audit is only as
-                good as the data you give it.
+                Start with a preset or add every tool your team pays for.
               </p>
             </div>
             {/* Step indicator */}
@@ -254,7 +276,7 @@ export default function AuditPage() {
         {form.tools.length === 0 && (
           <FadeIn delay={0.1} className="mb-8">
             <p className="mb-3 text-xs font-medium uppercase tracking-widest text-muted-foreground">
-              Quick start — pick a common stack
+              Quick start - pick a common stack
             </p>
             <div className="grid gap-3 sm:grid-cols-3">
               {PRESETS.map((preset) => (
@@ -262,11 +284,11 @@ export default function AuditPage() {
                   key={preset.label}
                   type="button"
                   onClick={() => applyPreset(preset)}
-                  className="group rounded-xl border border-border bg-card p-4 text-left transition-all hover:border-primary/30 hover:shadow-sm"
+                  className="group rounded-md border border-border bg-card p-4 text-left transition-all hover:border-foreground/30 hover:bg-accent/25"
                 >
                   <div className="mb-1 text-sm font-semibold">{preset.label}</div>
                   <div className="text-xs text-muted-foreground">
-                    {preset.tools.length} tools · {preset.teamSize} user{preset.teamSize > 1 ? "s" : ""}
+                    {preset.tools.length} tools / {preset.teamSize} user{preset.teamSize > 1 ? "s" : ""}
                   </div>
                 </button>
               ))}
@@ -276,7 +298,7 @@ export default function AuditPage() {
 
         {/* Team Info */}
         <FadeIn delay={0.15} className="mb-8">
-          <div className="rounded-xl border border-border bg-card p-5">
+          <div className="flat-card rounded-lg p-5">
             <div className="mb-4 flex items-center gap-2 text-sm font-semibold">
               <Users className="h-4 w-4 text-muted-foreground" />
               Team
@@ -335,7 +357,7 @@ export default function AuditPage() {
                 exit={{ opacity: 0, height: 0, marginBottom: 0 }}
                 transition={{ duration: 0.25, ease: [0.21, 0.47, 0.32, 0.98] }}
               >
-                <div className="rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/15">
+                <div className="flat-card rounded-lg p-5 transition-colors hover:border-foreground/20">
                   <div className="mb-4 flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
                       <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-base">
@@ -368,8 +390,8 @@ export default function AuditPage() {
                             <SelectItem key={plan.id} value={plan.id}>
                               {plan.name}
                               {plan.pricePerUserPerMonth > 0 &&
-                                ` — $${plan.pricePerUserPerMonth}${plan.isPerSeat ? "/user" : ""}/mo`}
-                              {plan.pricePerUserPerMonth === 0 && " — Free"}
+                                ` - $${plan.pricePerUserPerMonth}${plan.isPerSeat ? "/user" : ""}/mo`}
+                              {plan.pricePerUserPerMonth === 0 && " - Free"}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -490,11 +512,30 @@ export default function AuditPage() {
                 Click a tool above or pick a preset
               </p>
               <p className="text-xs text-muted-foreground">
-                Add every AI tool your team pays for — subscriptions and API usage
+                Add every AI tool your team pays for: subscriptions and API usage
               </p>
             </div>
           </FadeIn>
         )}
+          </div>
+
+          <aside className="hidden lg:block">
+            <div className="sticky top-24 rounded-lg border border-border bg-surface p-6">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                What you get
+              </p>
+              <h2 className="mb-4 text-2xl font-semibold leading-tight">
+                A finance-ready AI spend report.
+              </h2>
+              <div className="space-y-4 text-sm leading-relaxed text-muted-foreground">
+                <p>Plan-fit checks across subscription tools.</p>
+                <p>Per-tool savings ranked by confidence.</p>
+                <p>Benchmark comparison for your team size.</p>
+                <p>Shareable URL for budget reviews.</p>
+              </div>
+            </div>
+          </aside>
+        </div>
       </main>
 
       {/* Sticky Submit Bar */}
@@ -507,7 +548,7 @@ export default function AuditPage() {
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="sticky bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur-xl"
           >
-            <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
+            <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8">
               <div>
                 <p className="text-xs text-muted-foreground">
                   {form.tools.length} tool{form.tools.length > 1 ? "s" : ""} ·{" "}
@@ -528,7 +569,7 @@ export default function AuditPage() {
                 size="lg"
                 disabled={isSubmitting}
                 onClick={handleSubmit}
-                className="min-w-[180px] rounded-xl"
+                className="min-w-[180px] rounded-md"
               >
                 {isSubmitting ? (
                   <>
@@ -545,7 +586,7 @@ export default function AuditPage() {
             </div>
 
             {error && (
-              <div className="mx-auto max-w-3xl px-6 pb-3">
+              <div className="mx-auto max-w-7xl px-5 pb-3 md:px-8">
                 <p className="text-sm text-danger" role="alert">
                   {error}
                 </p>

@@ -9,18 +9,18 @@ import { LandingCta } from "@/components/landing/cta";
 import { SiteFooter } from "@/components/site-footer";
 
 export const metadata: Metadata = {
-  title: "PromptBudget — Free AI Spend Audit for Startups",
+  title: "PromptBudget - Free AI Spend Audit for Startups",
   description:
-    "Find out if you're overspending on AI tools. Get a free, instant audit of your Cursor, Copilot, Claude, ChatGPT, and Gemini subscriptions — with actionable savings.",
+    "Find out if you're overspending on AI tools. Get a free, instant audit of your Cursor, Copilot, Claude, ChatGPT, and Gemini subscriptions with actionable savings.",
   openGraph: {
-    title: "PromptBudget — Free AI Spend Audit for Startups",
+    title: "PromptBudget - Free AI Spend Audit for Startups",
     description:
       "Find out if you're overspending on AI tools. Instant audit. Real savings.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "PromptBudget — Free AI Spend Audit",
+    title: "PromptBudget - Free AI Spend Audit",
     description:
       "Your team is probably overspending on AI tools. Find out in 2 minutes.",
   },

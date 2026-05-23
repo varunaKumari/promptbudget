@@ -14,7 +14,7 @@ export function SpendChart({ toolResults }: SpendChartProps) {
   const maxSpend = Math.max(...toolResults.map((r) => r.currentMonthlySpend), 1);
 
   return (
-    <div className="rounded-xl border border-border bg-card p-6">
+    <div className="flat-card rounded-lg p-6">
       <div className="mb-1 flex items-center gap-2">
         <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
           Spend Comparison
@@ -52,17 +52,17 @@ export function SpendChart({ toolResults }: SpendChartProps) {
               </div>
 
               <div className="relative mb-0.5">
-                <div className="h-5 w-full overflow-hidden rounded-md bg-muted">
+                <div className="h-5 w-full overflow-hidden rounded-sm bg-muted">
                   <div
-                    className="h-full rounded-md bg-foreground/15 transition-all duration-700 ease-out"
+                    className="h-full rounded-sm bg-foreground/20 transition-all duration-700 ease-out"
                     style={{ width: `${Math.max(currentWidth, 3)}%` }}
                   />
                 </div>
                 {hasSavings && (
                   <div className="absolute inset-0">
-                    <div className="h-5 w-full overflow-hidden rounded-md">
+                    <div className="h-5 w-full overflow-hidden rounded-sm">
                       <div
-                        className="h-full rounded-md bg-success/30 transition-all duration-1000 ease-out"
+                        className="h-full rounded-sm bg-success/30 transition-all duration-1000 ease-out"
                         style={{ width: `${Math.max(optimizedWidth, 3)}%` }}
                       />
                     </div>
@@ -98,30 +98,36 @@ export function SpendDonut({ toolResults }: SpendChartProps) {
 
   // Brand-aligned colors using oklch for consistency
   const colors = [
-    "oklch(0.55 0.15 265)",
-    "oklch(0.65 0.14 165)",
-    "oklch(0.75 0.14 75)",
-    "oklch(0.62 0.15 25)",
-    "oklch(0.60 0.12 320)",
-    "oklch(0.58 0.10 200)",
-    "oklch(0.70 0.10 120)",
-    "oklch(0.50 0.12 300)",
+    "oklch(0.86 0.22 127)",
+    "oklch(0.58 0.12 220)",
+    "oklch(0.68 0.13 35)",
+    "oklch(0.55 0.10 285)",
+    "oklch(0.66 0.12 170)",
+    "oklch(0.74 0.12 75)",
+    "oklch(0.50 0.10 25)",
+    "oklch(0.62 0.10 310)",
   ];
 
-  let accumulated = 0;
-  const segments = toolResults.map((r, i) => {
+  const segments = toolResults.reduce<(ToolAuditResult & {
+    pct: number;
+    start: number;
+    end: number;
+    color: string;
+  })[]>((items, r, i) => {
     const pct = (r.currentMonthlySpend / total) * 100;
-    const start = accumulated;
-    accumulated += pct;
-    return { ...r, pct, start, end: accumulated, color: colors[i % colors.length] };
-  });
+    const start = items[i - 1]?.end ?? 0;
+    return [
+      ...items,
+      { ...r, pct, start, end: start + pct, color: colors[i % colors.length] },
+    ];
+  }, []);
 
   const gradient = segments
     .map((s) => `${s.color} ${s.start}% ${s.end}%`)
     .join(", ");
 
   return (
-    <div className="rounded-xl border border-border bg-card p-6">
+    <div className="flat-card rounded-lg p-6">
       <div className="mb-1">
         <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
           Spend Distribution

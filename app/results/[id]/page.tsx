@@ -66,6 +66,8 @@ export async function generateMetadata({
 export default async function ResultsPage({ params }: ResultsPageProps) {
   const { id } = await params;
 
+  let fetchedResult: { results: AuditResult; auditId: string } | null = null;
+
   // Try to fetch audit from Supabase
   if (isSupabaseConfigured) {
     try {
@@ -81,11 +83,20 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
         results.aiSummary = data.ai_summary || undefined;
         results.createdAt = data.created_at;
 
-        return <ResultsClient results={results} auditId={data.id} />;
+        fetchedResult = { results, auditId: data.id };
       }
     } catch (err) {
       console.error("[results] Supabase fetch failed:", err);
     }
+  }
+
+  if (fetchedResult) {
+    return (
+      <ResultsClient
+        results={fetchedResult.results}
+        auditId={fetchedResult.auditId}
+      />
+    );
   }
 
   // Supabase unavailable or no data — try sessionStorage via client component

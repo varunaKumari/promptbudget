@@ -15,12 +15,20 @@ function LogoMark({ className }: { className?: string }) {
       className={className}
       aria-hidden="true"
     >
-      {/* Three bars forming a chart — the "P" in PromptBudget */}
-      <rect x="3" y="16" width="6" height="10" rx="1.5" className="fill-primary" />
-      <rect x="11" y="8" width="6" height="18" rx="1.5" className="fill-primary opacity-70" />
-      <rect x="19" y="2" width="6" height="24" rx="1.5" className="fill-primary opacity-40" />
-      {/* Subtle cut line representing "budget" */}
-      <line x1="1" y1="14" x2="27" y2="14" className="stroke-danger" strokeWidth="1.5" strokeDasharray="2 2" strokeLinecap="round" />
+      <path
+        d="M5 21.5V6.5h9.4c4.6 0 7.6 2.4 7.6 6.1 0 3.8-3 6.2-7.6 6.2H9.7v2.7H5Z"
+        className="fill-foreground"
+      />
+      <path
+        d="M9.7 10.2v4.9h4.4c1.9 0 3.1-.9 3.1-2.5s-1.2-2.4-3.1-2.4H9.7Z"
+        className="fill-primary"
+      />
+      <path
+        d="M18.5 20.8c2.1-.8 3.8-2.1 5-4"
+        className="stroke-primary"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -38,8 +46,8 @@ export function Logo({ size = "md", showText = true, href = "/" }: LogoProps) {
     <span className="flex items-center gap-2">
       <LogoMark className={s.mark} />
       {showText && (
-        <span className={`font-bold tracking-tight ${s.text}`}>
-          Prompt<span className="text-primary">Budget</span>
+        <span className={`font-semibold tracking-normal ${s.text}`}>
+          PromptBudget
         </span>
       )}
     </span>
@@ -47,7 +55,7 @@ export function Logo({ size = "md", showText = true, href = "/" }: LogoProps) {
 
   if (href) {
     return (
-      <Link href={href} className="flex items-center gap-2 transition-opacity hover:opacity-80">
+      <Link href={href} className="flex items-center gap-2 transition-opacity hover:opacity-75">
         {content}
       </Link>
     );

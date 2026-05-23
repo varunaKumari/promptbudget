@@ -61,7 +61,7 @@ export function LeadForm({ auditId, savingsAmount, onSuccess }: LeadFormProps) {
       <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="rounded-xl border border-success/20 bg-success/[0.04] p-8 text-center"
+        className="rounded-lg border border-success/20 bg-success/[0.04] p-8 text-center"
       >
         <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-success/10">
           <CheckCircle className="h-6 w-6 text-success" />
@@ -78,7 +78,7 @@ export function LeadForm({ auditId, savingsAmount, onSuccess }: LeadFormProps) {
   const isHighSavings = savingsAmount >= 500;
 
   return (
-    <div className="rounded-xl border border-border bg-card p-6">
+    <div className="flat-card rounded-lg p-6">
       <div className="mb-1 flex items-center gap-2">
         <Mail className="h-4 w-4 text-muted-foreground" />
         <h3 className="text-sm font-semibold">
@@ -163,7 +163,7 @@ export function LeadForm({ auditId, savingsAmount, onSuccess }: LeadFormProps) {
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="w-full rounded-lg"
+          className="w-full rounded-md"
           size="default"
         >
           {isSubmitting ? (

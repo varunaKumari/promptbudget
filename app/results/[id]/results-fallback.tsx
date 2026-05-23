@@ -19,17 +19,20 @@ export function ResultsFallback({ auditId }: ResultsFallbackProps) {
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    try {
-      const cached = sessionStorage.getItem(`audit_${auditId}`);
-      if (cached) {
-        const parsed = JSON.parse(cached) as AuditResult;
-        parsed.id = auditId;
-        setResults(parsed);
+    const timer = window.setTimeout(() => {
+      try {
+        const cached = sessionStorage.getItem(`audit_${auditId}`);
+        if (cached) {
+          const parsed = JSON.parse(cached) as AuditResult;
+          parsed.id = auditId;
+          setResults(parsed);
+        }
+      } catch {
+        // Ignore parse errors
       }
-    } catch {
-      // Ignore parse errors
-    }
-    setChecked(true);
+      setChecked(true);
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [auditId]);
 
   // Still loading

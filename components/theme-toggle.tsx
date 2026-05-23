@@ -9,18 +9,21 @@ export function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    const saved = localStorage.getItem("promptbudget_theme");
-    if (saved === "dark") {
-      setIsDark(true);
-      document.documentElement.classList.add("dark");
-    } else if (saved === "light") {
-      setIsDark(false);
-      document.documentElement.classList.remove("dark");
-    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      setIsDark(true);
-      document.documentElement.classList.add("dark");
-    }
+    const timer = window.setTimeout(() => {
+      setMounted(true);
+      const saved = localStorage.getItem("promptbudget_theme");
+      if (saved === "dark") {
+        setIsDark(true);
+        document.documentElement.classList.add("dark");
+      } else if (saved === "light") {
+        setIsDark(false);
+        document.documentElement.classList.remove("dark");
+      } else {
+        setIsDark(false);
+        document.documentElement.classList.remove("dark");
+      }
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   const toggleTheme = useCallback(() => {
@@ -63,7 +66,7 @@ export function ThemeToggle() {
       onClick={toggleTheme}
       className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      title={`Toggle theme (${navigator.platform.includes("Mac") ? "⌘" : "Ctrl"}+Shift+D)`}
+      title={`Toggle theme (${navigator.platform.includes("Mac") ? "Cmd" : "Ctrl"}+Shift+D)`}
     >
       <AnimatePresence mode="wait" initial={false}>
         {isDark ? (

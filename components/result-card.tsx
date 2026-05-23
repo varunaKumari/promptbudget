@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, TrendingDown, Check, AlertTriangle, ArrowRight } from "lucide-react";
+import { ChevronDown, TrendingDown, Check, AlertTriangle } from "lucide-react";
 import type { ToolAuditResult } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 
@@ -54,12 +54,12 @@ export function ResultCard({ result, index = 0 }: ResultCardProps) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: index * 0.08, ease: [0.21, 0.47, 0.32, 0.98] }}
-      className={`rounded-xl border bg-card p-5 transition-shadow hover:shadow-md ${s.borderClass}`}
+      className={`rounded-lg border bg-card p-5 transition-colors hover:border-foreground/20 ${s.borderClass}`}
     >
       {/* Header */}
       <div className="mb-4 flex items-start justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-lg">
+          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-muted text-lg">
             {toolIcon}
           </div>
           <div>
@@ -76,7 +76,7 @@ export function ResultCard({ result, index = 0 }: ResultCardProps) {
       </div>
 
       {/* Current Spend */}
-      <div className="mb-4 flex items-baseline justify-between rounded-lg bg-muted/50 px-4 py-3">
+      <div className="mb-4 flex items-baseline justify-between rounded-md bg-muted/50 px-4 py-3">
         <span className="text-xs text-muted-foreground">Current spend</span>
         <span className="text-lg font-bold font-tabular">
           ${currentMonthlySpend.toLocaleString()}
@@ -86,7 +86,7 @@ export function ResultCard({ result, index = 0 }: ResultCardProps) {
 
       {/* Top Recommendation */}
       {topRecommendation && topRecommendation.type !== "optimal" && (
-        <div className="mb-3 rounded-lg border border-success/20 bg-success/[0.04] p-4">
+        <div className="mb-3 rounded-md border border-success/20 bg-success/[0.04] p-4">
           <div className="mb-2 flex items-baseline justify-between">
             <span className="flex items-center gap-1 text-xs font-semibold text-success">
               <TrendingDown className="h-3 w-3" />
@@ -118,7 +118,7 @@ export function ResultCard({ result, index = 0 }: ResultCardProps) {
 
       {/* Optimal Status */}
       {topRecommendation?.type === "optimal" && (
-        <div className="rounded-lg border border-success/20 bg-success/[0.04] p-4">
+        <div className="rounded-md border border-success/20 bg-success/[0.04] p-4">
           <p className="flex items-center gap-1.5 text-sm text-success">
             <Check className="h-3.5 w-3.5" />
             {topRecommendation.reason}
@@ -132,7 +132,7 @@ export function ResultCard({ result, index = 0 }: ResultCardProps) {
           <button
             type="button"
             onClick={() => setExpanded(!expanded)}
-            className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             <span>{recommendations.length - 1} other option{recommendations.length - 1 > 1 ? "s" : ""}</span>
             <ChevronDown className={`h-3.5 w-3.5 transition-transform ${expanded ? "rotate-180" : ""}`} />
@@ -150,7 +150,7 @@ export function ResultCard({ result, index = 0 }: ResultCardProps) {
                   {recommendations.slice(1).map((rec, i) => (
                     <div
                       key={i}
-                      className="rounded-lg border border-border bg-muted/30 p-3"
+                      className="rounded-md border border-border bg-muted/30 p-3"
                     >
                       <div className="flex items-baseline justify-between">
                         <span className="text-xs font-medium">{rec.action}</span>

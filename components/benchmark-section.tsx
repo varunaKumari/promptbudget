@@ -18,7 +18,6 @@ export function BenchmarkSection({
     comparison;
 
   const maxVal = benchmark.p75SpendPerDev * 1.5;
-  const p25Pos = (benchmark.p25SpendPerDev / maxVal) * 100;
   const medPos = (benchmark.medianSpendPerDev / maxVal) * 100;
   const p75Pos = (benchmark.p75SpendPerDev / maxVal) * 100;
   const userPos = Math.min((spendPerDev / maxVal) * 100, 98);
@@ -27,7 +26,7 @@ export function BenchmarkSection({
 
   return (
     <FadeIn>
-      <div className="rounded-xl border border-border bg-card p-6">
+      <div className="flat-card rounded-lg p-6">
         <div className="mb-1 flex items-center gap-2">
           <BarChart3 className="h-4 w-4 text-muted-foreground" />
           <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
@@ -68,10 +67,10 @@ export function BenchmarkSection({
 
         {/* Visual benchmark bar */}
         <div className="relative mb-6">
-          <div className="relative h-8 w-full overflow-hidden rounded-lg bg-muted">
+          <div className="relative h-8 w-full overflow-hidden rounded-sm bg-muted">
             {/* Zones */}
             <div
-              className="absolute inset-y-0 left-0 rounded-l-lg bg-success/15"
+              className="absolute inset-y-0 left-0 rounded-l-sm bg-success/15"
               style={{ width: `${medPos}%` }}
             />
             <div
@@ -79,7 +78,7 @@ export function BenchmarkSection({
               style={{ left: `${medPos}%`, width: `${p75Pos - medPos}%` }}
             />
             <div
-              className="absolute inset-y-0 right-0 rounded-r-lg bg-danger/10"
+              className="absolute inset-y-0 right-0 rounded-r-sm bg-danger/10"
               style={{ left: `${p75Pos}%` }}
             />
 

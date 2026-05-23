@@ -1,7 +1,7 @@
 "use client";
 
+import { Clock, TrendingDown, Users } from "lucide-react";
 import { FadeIn, CountUp } from "@/components/ui/motion";
-import { TrendingDown, Clock, Users } from "lucide-react";
 
 const STATS = [
   {
@@ -9,70 +9,51 @@ const STATS = [
     value: 23,
     suffix: "%",
     label: "average savings found",
-    detail: "across all audits run to date",
+    detail: "from duplicate seats, plan mismatch, and API waste",
   },
   {
     icon: Clock,
     value: 90,
     suffix: "s",
     label: "average audit time",
-    detail: "from first click to full report",
+    detail: "from first input to full recommendations",
   },
   {
     icon: Users,
-    value: 8,
-    suffix: "",
-    label: "tools analyzed",
-    detail: "with 40+ pricing plans tracked",
+    value: 40,
+    suffix: "+",
+    label: "pricing plans tracked",
+    detail: "across subscriptions and API platforms",
   },
 ];
 
 export function LandingSocialProof() {
   return (
-    <section className="px-6 py-24">
-      <div className="mx-auto max-w-5xl">
-        <FadeIn className="mb-12 text-center">
-          <p className="mb-3 text-sm font-medium text-primary">By the numbers</p>
-          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-            Trusted by engineering teams
+    <section id="benchmarks" className="px-5 py-24 md:px-8">
+      <div className="mx-auto max-w-7xl">
+        <FadeIn className="mb-12 max-w-3xl">
+          <p className="mb-3 text-sm font-semibold text-muted-foreground">By the numbers</p>
+          <h2 className="text-4xl font-semibold leading-tight tracking-normal md:text-6xl">
+            Most teams overspend before they even notice the line item.
           </h2>
         </FadeIn>
 
-        <FadeIn delay={0.2}>
-          <div className="grid gap-6 md:grid-cols-3">
+        <FadeIn delay={0.15}>
+          <div className="grid gap-px overflow-hidden rounded-lg border border-border bg-border md:grid-cols-3">
             {STATS.map((stat) => {
               const Icon = stat.icon;
               return (
-                <div
-                  key={stat.label}
-                  className="relative rounded-xl border border-border bg-card p-6 text-center"
-                >
-                  <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/8 text-primary">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <div className="mb-1 text-4xl font-bold font-tabular tracking-tight">
+                <div key={stat.label} className="bg-card p-8">
+                  <Icon className="mb-10 h-6 w-6 text-muted-foreground" />
+                  <div className="mb-2 text-6xl font-semibold tracking-normal">
                     <CountUp value={stat.value} suffix={stat.suffix} />
                   </div>
-                  <div className="mb-1 text-sm font-medium text-foreground">
-                    {stat.label}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {stat.detail}
-                  </div>
+                  <div className="mb-2 text-base font-semibold text-foreground">{stat.label}</div>
+                  <div className="text-sm leading-relaxed text-muted-foreground">{stat.detail}</div>
                 </div>
               );
             })}
           </div>
-        </FadeIn>
-
-        {/* Trust signal */}
-        <FadeIn delay={0.4} className="mt-12 text-center">
-          <p className="text-sm text-muted-foreground">
-            All pricing data sourced from official vendor pages · Updated weekly ·{" "}
-            <a href="https://credex.rocks" target="_blank" rel="noopener noreferrer" className="text-foreground underline underline-offset-2 hover:text-primary">
-              Powered by Credex
-            </a>
-          </p>
         </FadeIn>
       </div>
     </section>

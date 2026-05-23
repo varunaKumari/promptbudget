@@ -18,11 +18,10 @@ import { ResultCard } from "@/components/result-card";
 import { LeadForm } from "@/components/lead-form";
 import { BenchmarkSection } from "@/components/benchmark-section";
 import { SpendChart, SpendDonut } from "@/components/spend-charts";
-import { Logo } from "@/components/ui/logo";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { SiteFooter } from "@/components/site-footer";
 import { FadeIn, SlideUp, CountUp } from "@/components/ui/motion";
 import { Button } from "@/components/ui/button";
+import { Navbar } from "@/components/navbar";
 
 interface ResultsClientProps {
   results: AuditResult;
@@ -167,47 +166,51 @@ export function ResultsClient({ results, auditId }: ResultsClientProps) {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-6">
-          <Logo size="md" />
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={copyShareLink}
-              className="rounded-lg"
-            >
-              {copied ? (
-                <>
-                  <Check className="mr-1.5 h-3.5 w-3.5 text-success" />
-                  Copied
-                </>
-              ) : (
-                <>
-                  <Copy className="mr-1.5 h-3.5 w-3.5" />
-                  Copy link
-                </>
-              )}
-            </Button>
-            <Link href="/audit">
-              <Button variant="outline" size="sm" className="rounded-lg">
-                <Plus className="mr-1.5 h-3.5 w-3.5" />
-                New audit
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar showAuditCta={false} maxWidth="max-w-7xl" />
 
-      <main className="flex-1 mx-auto w-full max-w-5xl px-6 py-10">
+      <main className="flex-1">
+        <section className="relative border-b border-border px-5 py-10 md:px-8 md:py-14">
+          <div className="pointer-events-none absolute inset-0 dot-grid opacity-60" />
+          <div className="relative mx-auto flex max-w-7xl flex-col gap-5 md:flex-row md:items-start md:justify-between">
+            <div>
+              <p className="mb-3 text-sm font-semibold text-muted-foreground">
+                AI spend report
+              </p>
+              <h1 className="max-w-4xl text-5xl font-semibold leading-[1.02] tracking-normal md:text-7xl">
+                Your AI budget, explained.
+              </h1>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" onClick={copyShareLink} className="rounded-md">
+                {copied ? (
+                  <>
+                    <Check className="mr-1.5 h-3.5 w-3.5 text-success" />
+                    Copied
+                  </>
+                ) : (
+                  <>
+                    <Copy className="mr-1.5 h-3.5 w-3.5" />
+                    Copy link
+                  </>
+                )}
+              </Button>
+              <Link href="/audit">
+                <Button variant="outline" size="sm" className="rounded-md">
+                  <Plus className="mr-1.5 h-3.5 w-3.5" />
+                  New audit
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <div className="mx-auto w-full max-w-7xl px-5 py-10 md:px-8">
         {/* Hero: Score + Savings */}
         <section className="mb-12">
           <SlideUp>
-            <div className="flex flex-col items-center gap-8 md:flex-row md:items-start md:gap-12">
+            <div className="grid gap-px overflow-hidden rounded-lg border border-border bg-border lg:grid-cols-[300px_1fr]">
               {/* AI Spend Score */}
-              <div className="flex flex-col items-center text-center">
+              <div className="flex flex-col items-center bg-card p-8 text-center">
                 <p className="mb-3 text-xs font-medium uppercase tracking-widest text-muted-foreground">
                   AI Spend Score
                 </p>
@@ -222,19 +225,19 @@ export function ResultsClient({ results, auditId }: ResultsClientProps) {
               </div>
 
               {/* Savings or Optimal message */}
-              <div className="flex-1 text-center md:text-left">
+              <div className="bg-card p-8 md:p-10">
                 {!isOptimal ? (
                   <>
                     <p className="mb-2 text-xs font-medium uppercase tracking-widest text-muted-foreground">
                       Potential savings
                     </p>
-                    <div className="mb-2 text-5xl font-bold tracking-tight md:text-6xl">
+                    <div className="mb-3 text-6xl font-semibold tracking-normal md:text-8xl">
                       <span className="font-tabular text-success">
                         $<CountUp value={totalMonthlySavings} />
                       </span>
                       <span className="text-lg font-normal text-muted-foreground">/mo</span>
                     </div>
-                    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm text-muted-foreground md:justify-start">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                       <span className="font-tabular">${totalAnnualSavings.toLocaleString()}/year</span>
                       <span>·</span>
                       <span className="font-tabular">{savingsPercentage}% reduction</span>
@@ -263,7 +266,7 @@ export function ResultsClient({ results, auditId }: ResultsClientProps) {
 
         {/* AI Summary */}
         <FadeIn delay={0.2} className="mb-10">
-          <div className="rounded-xl border border-border bg-card p-6">
+          <div className="flat-card rounded-lg p-6">
             <div className="mb-3 flex items-center gap-2">
               <Brain className="h-4 w-4 text-primary" />
               <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
@@ -288,7 +291,7 @@ export function ResultsClient({ results, auditId }: ResultsClientProps) {
         {/* Credex CTA for significant savings */}
         {isSignificant && (
           <FadeIn delay={0.3} className="mb-10">
-            <div className="rounded-xl bg-primary p-6 text-primary-foreground md:p-8">
+            <div className="rounded-lg bg-primary p-6 text-primary-foreground md:p-8">
               <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                 <div>
                   <h2 className="mb-1.5 text-lg font-bold">
@@ -305,7 +308,7 @@ export function ResultsClient({ results, auditId }: ResultsClientProps) {
                   href="https://credex.rocks"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group inline-flex h-10 items-center justify-center whitespace-nowrap rounded-lg bg-primary-foreground px-6 text-sm font-semibold text-primary transition-all hover:opacity-90"
+                className="group inline-flex h-10 items-center justify-center whitespace-nowrap rounded-md bg-primary-foreground px-6 text-sm font-semibold text-primary transition-all hover:opacity-90"
                 >
                   Book consultation
                   <ArrowRight className="ml-1.5 h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -326,7 +329,7 @@ export function ResultsClient({ results, auditId }: ResultsClientProps) {
         {/* Per-Tool Results */}
         <section className="mb-10">
           <FadeIn>
-            <h2 className="mb-5 text-lg font-bold">
+            <h2 className="mb-5 text-2xl font-semibold">
               Tool-by-tool breakdown
             </h2>
           </FadeIn>
@@ -399,10 +402,11 @@ export function ResultsClient({ results, auditId }: ResultsClientProps) {
         {/* Run Another */}
         <div className="text-center">
           <Link href="/audit">
-            <Button variant="outline" className="rounded-lg">
+            <Button variant="outline" className="rounded-md">
               Run another audit
             </Button>
           </Link>
+        </div>
         </div>
       </main>
 
