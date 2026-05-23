@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { AuthNavActions } from "@/components/auth/auth-nav-actions";
 
 interface NavbarProps {
   showAuditCta?: boolean;
@@ -26,22 +27,34 @@ const productItems = [
     title: "AI spend audit",
     description: "Find waste across seats, plans, and overlapping tools.",
     icon: BarChart3,
+    href: "/audit",
   },
   {
     title: "Benchmarks",
     description: "Compare AI spend against teams at your stage.",
     icon: PieChart,
+    href: "/benchmarks",
   },
   {
     title: "Reports",
     description: "Share CFO-ready recommendations with exact savings.",
     icon: FileText,
+    href: "/reports",
   },
   {
     title: "Pricing data",
     description: "Vendor pricing tracked and refreshed for clear math.",
     icon: ShieldCheck,
+    href: "/pricing",
   },
+];
+
+const mobileItems = [
+  { label: "Product", href: "/" },
+  { label: "Audit", href: "/audit" },
+  { label: "Benchmarks", href: "/benchmarks" },
+  { label: "Reports", href: "/reports" },
+  { label: "Pricing", href: "/pricing" },
 ];
 
 export function Navbar({ showAuditCta = true, maxWidth = "max-w-7xl" }: NavbarProps) {
@@ -69,20 +82,24 @@ export function Navbar({ showAuditCta = true, maxWidth = "max-w-7xl" }: NavbarPr
             <Link href="/audit" className="transition-colors hover:text-foreground">
               Audit
             </Link>
-            <a href="#benchmarks" className="transition-colors hover:text-foreground">
+            <Link href="/benchmarks" className="transition-colors hover:text-foreground">
               Benchmarks
-            </a>
-            <a href="#features" className="transition-colors hover:text-foreground">
-              Features
-            </a>
+            </Link>
+            <Link href="/reports" className="transition-colors hover:text-foreground">
+              Reports
+            </Link>
+            <Link href="/pricing" className="transition-colors hover:text-foreground">
+              Pricing
+            </Link>
           </div>
         </div>
 
         <div className="hidden items-center gap-3 md:flex">
+          <AuthNavActions />
           <ThemeToggle />
           {showAuditCta && (
             <Link
-              href="/audit"
+              href="/audit/start"
               className="inline-flex h-11 items-center justify-center rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 lime-shadow"
             >
               Start audit
@@ -117,8 +134,8 @@ export function Navbar({ showAuditCta = true, maxWidth = "max-w-7xl" }: NavbarPr
                   return (
                     <Link
                       key={item.title}
-                      href="/audit"
-                      className="group bg-card p-5 transition-colors hover:bg-accent/45"
+                      href={item.href}
+                      className="group bg-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:bg-accent/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-md bg-primary text-primary-foreground">
                         <Icon className="h-5 w-5" />
@@ -141,7 +158,7 @@ export function Navbar({ showAuditCta = true, maxWidth = "max-w-7xl" }: NavbarPr
                 <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
                   Run the audit, get a ranked savings list, and share a report your finance team can trust.
                 </p>
-                <Link href="/audit" className="inline-flex items-center text-sm font-semibold">
+                <Link href="/audit/start" className="inline-flex items-center text-sm font-semibold">
                   Run the free audit
                   <ArrowRight className="ml-1.5 h-4 w-4" />
                 </Link>
@@ -160,19 +177,20 @@ export function Navbar({ showAuditCta = true, maxWidth = "max-w-7xl" }: NavbarPr
             className="overflow-hidden border-t border-border bg-background md:hidden"
           >
             <div className="space-y-1 px-5 py-4">
-              {["Product", "Audit", "Benchmarks", "Features"].map((item) => (
+              {mobileItems.map((item) => (
                 <Link
-                  key={item}
-                  href={item === "Audit" ? "/audit" : item === "Product" ? "/" : `/#${item.toLowerCase()}`}
+                  key={item.label}
+                  href={item.href}
                   className="block rounded-md px-3 py-2 text-sm font-medium hover:bg-muted"
                   onClick={() => setMenuOpen(false)}
                 >
-                  {item}
+                  {item.label}
                 </Link>
               ))}
+              <AuthNavActions mobile onNavigate={() => setMenuOpen(false)} />
               {showAuditCta && (
                 <Link
-                  href="/audit"
+                  href="/audit/start"
                   className="mt-3 flex h-11 items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground"
                   onClick={() => setMenuOpen(false)}
                 >

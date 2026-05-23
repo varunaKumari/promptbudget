@@ -11,12 +11,15 @@ import {
   Sparkles,
   Users,
   Briefcase,
+  BadgeDollarSign,
+  BarChart3,
+  PieChart,
+  SearchCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Navbar } from "@/components/navbar";
-import { SiteFooter } from "@/components/site-footer";
 import { FadeIn, SlideUp, CountUp } from "@/components/ui/motion";
 import {
   Select,
@@ -246,6 +249,48 @@ export default function AuditPage() {
               </p>
             </div>
           </div>
+        </section>
+
+        <section className="mx-auto grid w-full max-w-7xl gap-4 px-5 pt-8 sm:grid-cols-2 md:px-8 xl:grid-cols-4">
+          {[
+            {
+              title: "AI spend analytics",
+              description: "Track monthly spend, annual run rate, and per-seat budget pressure.",
+              icon: BarChart3,
+            },
+            {
+              title: "Waste detection",
+              description: "Find duplicate seats, wrong plans, and overlapping subscriptions.",
+              icon: SearchCheck,
+            },
+            {
+              title: "Tool usage breakdown",
+              description: "Separate seat-based subscriptions from API and usage-based tools.",
+              icon: PieChart,
+            },
+            {
+              title: "Savings recommendations",
+              description: "Get ranked actions with estimated monthly and annual savings.",
+              icon: BadgeDollarSign,
+            },
+          ].map((item) => {
+            const Icon = item.icon;
+
+            return (
+              <article
+                key={item.title}
+                className="group rounded-xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-lg hover:shadow-foreground/5"
+              >
+                <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-transform duration-200 group-hover:scale-105">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <h2 className="text-base font-semibold">{item.title}</h2>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  {item.description}
+                </p>
+              </article>
+            );
+          })}
         </section>
 
         <div className="mx-auto grid w-full max-w-7xl gap-8 px-5 py-10 md:px-8 lg:grid-cols-[1fr_330px]">
@@ -595,8 +640,6 @@ export default function AuditPage() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {form.tools.length === 0 && <SiteFooter />}
     </div>
   );
 }

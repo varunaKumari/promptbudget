@@ -18,7 +18,6 @@ import { ResultCard } from "@/components/result-card";
 import { LeadForm } from "@/components/lead-form";
 import { BenchmarkSection } from "@/components/benchmark-section";
 import { SpendChart, SpendDonut } from "@/components/spend-charts";
-import { SiteFooter } from "@/components/site-footer";
 import { FadeIn, SlideUp, CountUp } from "@/components/ui/motion";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/navbar";
@@ -409,8 +408,6 @@ export function ResultsClient({ results, auditId }: ResultsClientProps) {
         </div>
         </div>
       </main>
-
-      <SiteFooter />
     </div>
   );
 }

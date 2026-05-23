@@ -33,7 +33,10 @@ export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
 
   try {
     const { error } = await resend.emails.send({
-      from: options.from || "PromptBudget <onboarding@resend.dev>",
+      from:
+        options.from ||
+        process.env.RESEND_FROM_EMAIL ||
+        "PromptBudget <onboarding@resend.dev>",
       to: options.to,
       subject: options.subject,
       html: options.html,

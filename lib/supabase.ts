@@ -43,6 +43,14 @@ export const isSupabaseAdminConfigured =
 export const supabase: SupabaseClient = createClient(
   supabaseUrl || "https://placeholder.supabase.co",
   supabaseAnonKey || "eyJ-placeholder",
+  {
+    auth: {
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      flowType: "pkce",
+      persistSession: true,
+    },
+  }
 );
 
 /**
@@ -51,5 +59,10 @@ export const supabase: SupabaseClient = createClient(
  * Falls back to anon client if service role key is not configured.
  */
 export const supabaseAdmin: SupabaseClient = supabaseServiceKey
-  ? createClient(supabaseUrl || "https://placeholder.supabase.co", supabaseServiceKey)
+  ? createClient(supabaseUrl || "https://placeholder.supabase.co", supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    })
   : supabase;
