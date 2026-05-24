@@ -38,7 +38,7 @@ export function SignInForm() {
 
     if (!isSupabaseConfigured) {
       setStatus("error");
-      setMessage("Authentication is not configured yet.");
+      setMessage("Authentication is temporarily unavailable.");
       return;
     }
 
@@ -64,7 +64,7 @@ export function SignInForm() {
 
     if (!isSupabaseConfigured) {
       setStatus("error");
-      setMessage("Authentication is not configured yet.");
+      setMessage("Authentication is temporarily unavailable.");
       return;
     }
 

@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
 
     if (!isSupabaseAdminConfigured) {
       return Response.json(
-        { success: false, error: "Authentication is not configured yet." } satisfies ApiResponse,
+        { success: false, error: "Authentication is temporarily unavailable." } satisfies ApiResponse,
         { status: 503 }
       );
     }

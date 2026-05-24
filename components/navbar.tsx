@@ -62,7 +62,7 @@ export function Navbar({ maxWidth = "max-w-7xl" }: NavbarProps) {
 
   return (
     <nav
-      className="sticky top-0 z-50 border-b border-border bg-background/90 text-foreground shadow-[0_18px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-[#080b12]/90 dark:text-white dark:shadow-[0_18px_60px_rgba(0,0,0,0.28)]"
+      className="sticky top-0 z-50 border-b border-border bg-background/90 text-foreground shadow-[0_18px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:border-zinc-800 dark:bg-slate-950/90 dark:text-white dark:shadow-[0_18px_60px_rgba(0,0,0,0.28)]"
       onMouseLeave={() => setMegaOpen(false)}
     >
       <div className={`mx-auto flex h-16 items-center justify-between px-5 md:px-8 ${maxWidth}`}>
@@ -102,7 +102,7 @@ export function Navbar({ maxWidth = "max-w-7xl" }: NavbarProps) {
           </Link>
           <Link
             href="/contact"
-            className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-5 text-sm font-semibold text-foreground shadow-sm transition-all hover:bg-muted dark:border-white/16 dark:bg-white/[0.03] dark:text-white dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] dark:hover:border-white/28 dark:hover:bg-white/[0.08]"
+            className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-5 text-sm font-semibold text-foreground shadow-sm transition-all hover:bg-muted dark:border-zinc-700 dark:bg-zinc-950/80 dark:text-white dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] dark:hover:border-zinc-600 dark:hover:bg-zinc-900"
           >
             Contact
           </Link>
@@ -118,7 +118,7 @@ export function Navbar({ maxWidth = "max-w-7xl" }: NavbarProps) {
         <button
           type="button"
           onClick={() => setMenuOpen((open) => !open)}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-foreground md:hidden dark:border-white/12 dark:bg-white/[0.04] dark:text-white"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-foreground md:hidden dark:border-zinc-800 dark:bg-white/4 dark:text-white"
           aria-label="Toggle navigation"
         >
           {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -132,40 +132,40 @@ export function Navbar({ maxWidth = "max-w-7xl" }: NavbarProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.16 }}
-            className="absolute left-0 right-0 top-16 hidden border-b border-border bg-background/96 shadow-[0_24px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl md:block dark:border-white/10 dark:bg-[#080b12]/96 dark:shadow-[0_24px_60px_rgba(0,0,0,0.34)]"
+            className="absolute left-0 right-0 top-16 hidden border-b border-zinc-200 bg-white/95 shadow-[0_24px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl md:block dark:border-zinc-800 dark:bg-slate-950/96 dark:shadow-[0_24px_60px_rgba(0,0,0,0.42)]"
           >
             <div className="mx-auto grid max-w-7xl grid-cols-[1fr_320px] gap-8 px-8 py-8">
-              <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10">
+              <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-200 dark:border-zinc-800 dark:bg-zinc-800">
                 {productItems.map((item) => {
                   const Icon = item.icon;
                   return (
                     <Link
                       key={item.title}
                       href={item.href}
-                      className="group bg-[#0d111a] p-5 transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#111827] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+                      className="group bg-white p-5 transition-all duration-200 hover:-translate-y-0.5 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:bg-zinc-950 dark:text-white dark:hover:bg-zinc-900"
                     >
                       <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-md bg-blue-500 text-white">
                         <Icon className="h-5 w-5" />
                       </div>
-                      <p className="mb-1 text-base font-semibold">{item.title}</p>
-                      <p className="max-w-sm text-sm leading-relaxed text-white/56">
+                      <p className="mb-1 text-base font-semibold text-zinc-900 dark:text-white">{item.title}</p>
+                      <p className="max-w-sm text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
                         {item.description}
                       </p>
                     </Link>
                   );
                 })}
               </div>
-              <div className="rounded-lg border border-white/10 bg-white/[0.04] p-6">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-white/44">
+              <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm shadow-slate-900/5 dark:border-zinc-800 dark:bg-zinc-950/90 dark:shadow-black/20">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500 dark:text-zinc-400">
                   Featured
                 </p>
-                <h3 className="mb-2 text-2xl font-semibold leading-tight">
+                <h3 className="mb-2 text-2xl font-semibold leading-tight text-zinc-900 dark:text-white">
                   See where your AI budget leaks.
                 </h3>
-                <p className="mb-6 text-sm leading-relaxed text-white/58">
+                <p className="mb-6 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
                   Run the audit, get a ranked savings list, and share a report your finance team can trust.
                 </p>
-                <Link href="/audit/start" className="inline-flex items-center text-sm font-semibold">
+                <Link href="/audit/start" className="inline-flex items-center text-sm font-semibold text-blue-600 transition-colors hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200">
                   Run the free audit
                   <ArrowRight className="ml-1.5 h-4 w-4" />
                 </Link>
@@ -181,14 +181,14 @@ export function Navbar({ maxWidth = "max-w-7xl" }: NavbarProps) {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden border-t border-border bg-background md:hidden dark:border-white/10 dark:bg-[#080b12]"
+            className="overflow-hidden border-t border-border bg-background md:hidden dark:border-zinc-800 dark:bg-slate-950"
           >
             <div className="space-y-1 px-5 py-4">
               {mobileItems.map((item) => (
                 <Link
                   key={item.label}
                   href={item.href}
-                  className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground dark:text-white/72 dark:hover:bg-white/[0.06] dark:hover:text-white"
+                  className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground dark:text-white/72 dark:hover:bg-white/6 dark:hover:text-white"
                   onClick={() => setMenuOpen(false)}
                 >
                   {item.label}
@@ -201,14 +201,14 @@ export function Navbar({ maxWidth = "max-w-7xl" }: NavbarProps) {
                 </div>
                 <Link
                   href="/login"
-                  className="flex h-11 items-center justify-center rounded-full text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground dark:text-white/72 dark:hover:bg-white/[0.06] dark:hover:text-white"
+                  className="flex h-11 items-center justify-center rounded-full text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground dark:text-white/72 dark:hover:bg-white/6 dark:hover:text-white"
                   onClick={() => setMenuOpen(false)}
                 >
                   Log in
                 </Link>
                 <Link
                   href="/contact"
-                  className="flex h-11 items-center justify-center rounded-full border border-white/14 bg-white/[0.03] text-sm font-semibold text-white"
+                  className="flex h-11 items-center justify-center rounded-full border border-zinc-200 bg-white text-sm font-semibold text-zinc-900 transition-all hover:border-zinc-300 hover:bg-slate-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-white dark:hover:border-zinc-700 dark:hover:bg-zinc-900"
                   onClick={() => setMenuOpen(false)}
                 >
                   Contact

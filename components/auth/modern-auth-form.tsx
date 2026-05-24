@@ -14,7 +14,9 @@ import {
   Mail,
 } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
+import { toast } from "sonner";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
+import { getPasswordValidation, isEmailValid, isPasswordStrong } from "@/lib/auth";
 
 type AuthMode = "login" | "signup";
 type FormStatus = "idle" | "loading" | "success" | "error";
@@ -84,13 +86,28 @@ export function ModernAuthForm({ mode }: ModernAuthFormProps) {
   };
 
   const validate = () => {
-    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!isEmailValid(email)) {
       setError("Enter a valid email address.");
       return false;
     }
 
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return false;
+    }
+
+    if (isSignup && !/[A-Z]/.test(password)) {
+      setError("Password must contain at least one uppercase letter.");
+      return false;
+    }
+
+    if (isSignup && !/\d/.test(password)) {
+      setError("Password must contain at least one number.");
+      return false;
+    }
+
+    if (isSignup && !/[^A-Za-z0-9]/.test(password)) {
+      setError("Password must contain at least one special character.");
       return false;
     }
 
@@ -104,28 +121,41 @@ export function ModernAuthForm({ mode }: ModernAuthFormProps) {
     if (!validate()) return;
 
     if (!isSupabaseConfigured) {
-      setError("Authentication is not configured yet.");
+      setError("Unable to complete authentication. Please try again later.");
       return;
     }
 
     setStatus("loading");
 
-    const { error } = isSignup
+    const normalizedEmail = email.trim().toLowerCase();
+    const { error, data } = isSignup
       ? await supabase.auth.signUp({
-          email,
+          email: normalizedEmail,
           password,
           options: { emailRedirectTo: redirectTo },
         })
-      : await supabase.auth.signInWithPassword({ email, password });
+      : await supabase.auth.signInWithPassword({
+          email: normalizedEmail,
+          password,
+        });
 
     if (error) {
       setError(error.message);
+      toast.error(error.message);
       return;
     }
 
     if (isSignup) {
+      if (data.session) {
+        setStatus("success");
+        setMessage("Account created. Redirecting to your audit...");
+        router.push("/audit");
+        return;
+      }
+
       setStatus("success");
-      setMessage("Check your email to confirm your account, then come back to log in.");
+      setMessage("Account created. Check your email to confirm your address before signing in.");
+      toast.success("Verification email sent.");
       return;
     }
 
@@ -137,7 +167,7 @@ export function ModernAuthForm({ mode }: ModernAuthFormProps) {
     setMessage("");
 
     if (!isSupabaseConfigured) {
-      setError("Authentication is not configured yet.");
+      setError("Unable to complete authentication. Please try again later.");
       return;
     }
 
@@ -151,6 +181,7 @@ export function ModernAuthForm({ mode }: ModernAuthFormProps) {
 
     if (error) {
       setError(error.message);
+      toast.error(error.message);
     }
   };
 
@@ -158,7 +189,7 @@ export function ModernAuthForm({ mode }: ModernAuthFormProps) {
     setMessage("");
 
     if (!isSupabaseConfigured) {
-      setError("Authentication is not configured yet.");
+      setError("Unable to complete authentication. Please try again later.");
       return;
     }
 
@@ -191,23 +222,29 @@ export function ModernAuthForm({ mode }: ModernAuthFormProps) {
 
     setStatus("loading");
 
+    const normalizedEmail = email.trim().toLowerCase();
     const response = await fetch("/api/auth/reset-password", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email: normalizedEmail }),
     });
 
     const data = (await response.json()) as { success?: boolean; error?: string };
 
     if (!response.ok || !data.success) {
-      setError(data.error || "Unable to send reset email. Please try again.");
+      const errorMessage = data.error || "Unable to send reset email. Please try again.";
+      setError(errorMessage);
+      toast.error(errorMessage);
       return;
     }
 
     setStatus("success");
     setMessage("Check your email for a PromptBudget password reset link.");
+    toast.success("Reset instructions sent to your inbox.");
   };
 
+  const validation = useMemo(() => getPasswordValidation(password), [password]);
+  const passwordWarning = !isSignup && password.length > 0 && !isPasswordStrong(password);
   const disabled = status === "loading";
 
   return (
@@ -309,11 +346,11 @@ export function ModernAuthForm({ mode }: ModernAuthFormProps) {
               type={showPassword ? "text" : "password"}
               autoComplete={isSignup ? "new-password" : "current-password"}
               required
-              minLength={6}
+              minLength={8}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               className="h-full min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground dark:text-white dark:placeholder:text-white/28"
-              placeholder="At least 6 characters"
+              placeholder="At least 8 characters"
             />
             <button
               type="button"
@@ -325,6 +362,30 @@ export function ModernAuthForm({ mode }: ModernAuthFormProps) {
             </button>
           </span>
         </label>
+
+        <div className="rounded-2xl border border-input bg-slate-50/80 p-3 text-sm text-muted-foreground dark:border-white/10 dark:bg-white/[0.04] dark:text-white/70">
+          <div className="grid gap-2">
+            {validation.map((rule) => (
+              <div key={rule.label} className="flex items-center gap-2">
+                <span
+                  className={`inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full ${
+                    rule.isValid ? "bg-emerald-400 text-black" : "bg-muted text-muted-foreground"
+                  }`}
+                  aria-hidden="true"
+                >
+                  {rule.isValid ? "✓" : "○"}
+                </span>
+                <span className={rule.isValid ? "text-foreground" : "text-muted-foreground"}>{rule.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {passwordWarning ? (
+          <p className="text-sm text-amber-500">
+            We recommend a stronger password, but you can still log in with your existing credentials.
+          </p>
+        ) : null}
 
         {!isSignup && (
           <button
