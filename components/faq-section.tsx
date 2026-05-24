@@ -27,7 +27,7 @@ export function FaqSection() {
   const [openIndex, setOpenIndex] = useState(0);
 
   return (
-    <section className="bg-[#070a12] px-5 py-20 text-white sm:px-8 lg:py-28">
+    <section className="bg-background px-5 py-20 text-foreground dark:bg-[#070a12] dark:text-white sm:px-8 lg:py-28">
       <div className="mx-auto max-w-3xl">
         <h2 className="text-center text-5xl font-semibold tracking-normal sm:text-6xl">FAQ</h2>
 
@@ -37,17 +37,17 @@ export function FaqSection() {
             return (
               <div
                 key={item.question}
-                className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
+                className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm dark:border-white/10 dark:bg-white/[0.04] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
               >
                 <button
                   type="button"
                   onClick={() => setOpenIndex(isOpen ? -1 : index)}
-                  className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left text-base font-semibold text-white transition-colors hover:bg-white/[0.035] sm:px-6"
+                  className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left text-base font-semibold text-foreground transition-colors hover:bg-muted dark:text-white dark:hover:bg-white/[0.035] sm:px-6"
                   aria-expanded={isOpen}
                 >
                   {item.question}
                   <ChevronDown
-                    className={`h-5 w-5 shrink-0 text-white/48 transition-transform duration-200 ${
+                    className={`h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200 dark:text-white/48 ${
                       isOpen ? "rotate-180" : ""
                     }`}
                   />
@@ -60,7 +60,7 @@ export function FaqSection() {
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.22, ease: "easeOut" }}
                     >
-                      <p className="px-5 pb-5 text-sm leading-7 text-white/56 sm:px-6">
+                      <p className="px-5 pb-5 text-sm leading-7 text-muted-foreground dark:text-white/56 sm:px-6">
                         {item.answer}
                       </p>
                     </motion.div>
@@ -74,7 +74,7 @@ export function FaqSection() {
         <div className="mt-10 text-center">
           <Link
             href="/contact"
-            className="inline-flex h-12 items-center justify-center rounded-full border border-white/12 bg-white/[0.045] px-6 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:border-white/24 hover:bg-white/[0.08]"
+            className="inline-flex h-12 items-center justify-center rounded-full border border-border bg-card px-6 text-sm font-semibold text-foreground shadow-sm transition-all hover:-translate-y-0.5 hover:bg-muted dark:border-white/12 dark:bg-white/[0.045] dark:text-white dark:hover:border-white/24 dark:hover:bg-white/[0.08]"
           >
             Still have questions? Get in touch!
           </Link>

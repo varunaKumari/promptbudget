@@ -46,7 +46,7 @@ export function ContactForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-[28px] border border-white/10 bg-white/[0.045] p-5 shadow-[0_24px_90px_rgba(0,0,0,0.36)] backdrop-blur-xl sm:p-7"
+      className="rounded-[28px] border border-border bg-card/90 p-5 shadow-[0_24px_90px_rgba(15,23,42,0.12)] backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.045] dark:shadow-[0_24px_90px_rgba(0,0,0,0.36)] sm:p-7"
     >
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="First Name" name="firstName" autoComplete="given-name" required />
@@ -59,18 +59,18 @@ export function ContactForm() {
       </div>
 
       <label className="mt-4 block">
-        <span className="mb-2 block text-xs font-semibold text-white/58">Country</span>
+        <span className="mb-2 block text-xs font-semibold text-muted-foreground dark:text-white/58">Country</span>
         <select
           name="country"
           required
           defaultValue=""
-          className="h-12 w-full rounded-2xl border border-white/10 bg-black/20 px-4 text-sm text-white outline-none transition-all focus:border-blue-400/70 focus:ring-4 focus:ring-blue-500/10"
+          className="h-12 w-full rounded-2xl border border-input bg-background px-4 text-sm text-foreground outline-none transition-all focus:border-blue-400/70 focus:ring-4 focus:ring-blue-500/10 dark:border-white/10 dark:bg-black/20 dark:text-white"
         >
-          <option value="" disabled className="bg-[#0b0f18]">
+          <option value="" disabled className="bg-background dark:bg-[#0b0f18]">
             Select country
           </option>
           {countries.map((country) => (
-            <option key={country} value={country} className="bg-[#0b0f18]">
+            <option key={country} value={country} className="bg-background dark:bg-[#0b0f18]">
               {country}
             </option>
           ))}
@@ -78,13 +78,13 @@ export function ContactForm() {
       </label>
 
       <label className="mt-4 block">
-        <span className="mb-2 block text-xs font-semibold text-white/58">How can we help?</span>
+        <span className="mb-2 block text-xs font-semibold text-muted-foreground dark:text-white/58">How can we help?</span>
         <textarea
           name="message"
           required
           minLength={10}
           rows={5}
-          className="w-full resize-none rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none transition-all placeholder:text-white/28 focus:border-blue-400/70 focus:ring-4 focus:ring-blue-500/10"
+          className="w-full resize-none rounded-2xl border border-input bg-background px-4 py-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-blue-400/70 focus:ring-4 focus:ring-blue-500/10 dark:border-white/10 dark:bg-black/20 dark:text-white dark:placeholder:text-white/28"
           placeholder="Tell us about your team, AI stack, and what you want to improve."
         />
       </label>
@@ -130,13 +130,13 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-xs font-semibold text-white/58">{label}</span>
+      <span className="mb-2 block text-xs font-semibold text-muted-foreground dark:text-white/58">{label}</span>
       <input
         name={name}
         type={type}
         autoComplete={autoComplete}
         required={required}
-        className="h-12 w-full rounded-2xl border border-white/10 bg-black/20 px-4 text-sm text-white outline-none transition-all placeholder:text-white/28 focus:border-blue-400/70 focus:ring-4 focus:ring-blue-500/10"
+        className="h-12 w-full rounded-2xl border border-input bg-background px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-blue-400/70 focus:ring-4 focus:ring-blue-500/10 dark:border-white/10 dark:bg-black/20 dark:text-white dark:placeholder:text-white/28"
       />
     </label>
   );
