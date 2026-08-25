@@ -90,7 +90,7 @@ function auditSingleTool(
   const recommendations: Recommendation[] = [];
 
   // 1. Check if they're on the right plan for their team size
-  const planFitRecs = checkPlanFit(entry, input.teamSize, input.primaryUseCase);
+  const planFitRecs = checkPlanFit(entry, input.teamSize);
   recommendations.push(...planFitRecs);
 
   // 2. Check for cheaper plans from the same vendor
@@ -166,8 +166,7 @@ function auditSingleTool(
 
 function checkPlanFit(
   entry: ToolEntry,
-  teamSize: number,
-  _useCase: UseCase
+  teamSize: number
 ): Recommendation[] {
   const tool = getToolById(entry.toolId);
   const currentPlan = getPlanById(entry.toolId, entry.planId);
